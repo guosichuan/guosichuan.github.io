@@ -1,0 +1,289 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <link rel="Stylesheet" type="text/css" href="/static/css/style.css">
+    <link rel="Stylesheet" type="text/css" href="/static/css/tango.css">
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="alternate" type="application/atom+xml" href="atom.xml" title="Atom feed">
+    <title>IntelliJ Idea Live Template - Wiki Guosichuan</title>
+    <meta name="keywords" content="simiki, wiki, python, simple"/>
+    <meta name="description" content="Simiki is a simple static site generator for wiki."/>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  </head>
+
+  <body>
+    <div id="container">
+      
+<div id="header">
+  <div class="post-nav"><a href="/">Home</a>&nbsp;&#187;&nbsp;<a href="/#tool">tool</a>&nbsp;&#187;&nbsp;IntelliJ Idea Live Template
+    <span class="updated">Updated&nbsp;
+      2016-06-27 23:04
+    </span></div>
+</div>
+<div class="clearfix"></div>
+
+<div class="page_title">IntelliJ Idea Live Template</div>
+
+  <h1 id="intellij-idea-live-template">IntelliJ Idea Live Template</h1>
+<p>@(IntellJ IDEA)[idea, live template, simiki]</p>
+<div class="toc"><span class="toctitle">Table of Contents</span><ul>
+<li><a href="#intellij-idea-live-template">IntelliJ Idea Live Template</a><ul>
+<li><a href="#_1">预定义变量</a></li>
+<li><a href="#_2">预定义函数</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<h2 id="_1">预定义变量</h2>
+<table>
+<thead>
+<tr>
+<th>变量名</th>
+<th align="right">功能</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>$END$</td>
+<td align="right">最后鼠标位置</td>
+</tr>
+<tr>
+<td>$SELECTION$</td>
+<td align="right">在 surround templates 中代表选中的代码块</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_2">预定义函数</h2>
+<table>
+<thead>
+<tr>
+<th>函数名</th>
+<th>功能</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>annotated("annotation qname")</td>
+<td>Creates a symbol of type with an annotation that resides at the   pecified location. For an example, see Live Templates in the iterations group.</td>
+</tr>
+<tr>
+<td><font color=red>arrayVariable()</font></td>
+<td>返回当前范围内推荐的可用数组变量</td>
+</tr>
+<tr>
+<td>anonymousSuper()</td>
+<td>Suggests a supertype for a Kotlin object expression.</td>
+</tr>
+<tr>
+<td>camelCase(String)</td>
+<td>转换成驼峰式  my-text-file/my text file/my_text_file =&gt; myTextFile.</td>
+</tr>
+<tr>
+<td>capitalize(String)</td>
+<td>首字母大写</td>
+</tr>
+<tr>
+<td>capitalizeAndUnderscore(sCamelCaseName)</td>
+<td>驼峰样式转换成大写并用下划线分割FooBar =&gt; FOO_BAR</td>
+</tr>
+<tr>
+<td>castToLeftSideType()</td>
+<td>返回等号左边定义的类型</td>
+</tr>
+<tr>
+<td>className(sClassName)</td>
+<td>类名</td>
+</tr>
+<tr>
+<td>classNameComplete()</td>
+<td>This expression substitutes for the class name completion at the variable position.</td>
+</tr>
+<tr>
+<td>clipboard()</td>
+<td>粘贴剪切板</td>
+</tr>
+<tr>
+<td>complete()</td>
+<td>补全</td>
+</tr>
+<tr>
+<td>completeSmart()</td>
+<td>智能补全</td>
+</tr>
+<tr>
+<td><font color=red>componentTypeOf (<array variable or array type>)</fond></td>
+<td>返回<strong>数组</strong>的成员类型</td>
+</tr>
+<tr>
+<td>currentPackage()</td>
+<td>包名</td>
+</tr>
+<tr>
+<td>date(sFormat)</td>
+<td>当前系统时间</td>
+</tr>
+<tr>
+<td>decapitalize(sName)</td>
+<td>取消首字母大写</td>
+</tr>
+<tr>
+<td>descendantClassEnum(<String>)</td>
+<td>Shows the children of the class entered as a string parameter.</td>
+</tr>
+<tr>
+<td>enum(sCompletionString1,sCompletionString2,...)</td>
+<td>List of comma-delimited strings suggested for completion at the template invocation.</td>
+</tr>
+<tr>
+<td>escapeString(sEscapeString)</td>
+<td>Escapes the specified string.</td>
+</tr>
+<tr>
+<td>expectedType()</td>
+<td>Returns the type which is expected as a result of the whole template. Makes sense if the template is expanded in the right part of an assignment, after return, etc.</td>
+</tr>
+<tr>
+<td>fileName(sFileName)</td>
+<td>Returns file name with extension.</td>
+</tr>
+<tr>
+<td>fileNameWithoutExtension()</td>
+<td>Returns file name without extension.</td>
+</tr>
+<tr>
+<td>firstWord(sFirstWord)</td>
+<td>返回第一个word</td>
+</tr>
+<tr>
+<td>groovyScript("groovy code")</td>
+<td>Returns Groovy script with the specified code.You can use groovyScript macro with multiple arguments. The first argument is a script text that is executed or a path to the file that contains a script. The next arguments are bound to _1, _2, _3, ..._n variables that are available inside your script. Also, _editor variable is available inside the script. This variable is bound to the current editor.</td>
+</tr>
+<tr>
+<td><font color=red>guessElementType (<container>)</font></td>
+<td>返回<strong>集合</strong>中元素类型</td>
+</tr>
+<tr>
+<td><font color=red>iterableComponentType(<ArrayOrIterable>)</font></td>
+<td>返回可迭代变量的成员类型</td>
+</tr>
+<tr>
+<td><font color=red>iterableVariable()</font></td>
+<td>返回推荐的可迭代类型的变量</td>
+</tr>
+<tr>
+<td>lineNumber()</td>
+<td>返回行号</td>
+</tr>
+<tr>
+<td>lowercaseAndDash(String)</td>
+<td>Returns lower case separated by dashes, of the string passed as a parameter. MyExampleName =&gt; my-example-name.</td>
+</tr>
+<tr>
+<td>methodName()</td>
+<td>返回方法名</td>
+</tr>
+<tr>
+<td>methodParameters()</td>
+<td>返回参数列表</td>
+</tr>
+<tr>
+<td>methodReturnType()</td>
+<td>返回返回类型</td>
+</tr>
+<tr>
+<td>qualifiedClassName()</td>
+<td>返回类名全称</td>
+</tr>
+<tr>
+<td><font color=red>rightSideType()</font></td>
+<td>返回与右侧表达式相匹配的类型</td>
+</tr>
+<tr>
+<td>snakeCase(sCamelCaseText)</td>
+<td>CamelCase转snake_case</td>
+</tr>
+<tr>
+<td>spaceSeparated(String)</td>
+<td>驼峰转字符串 fooBar=&gt;foo bar.</td>
+</tr>
+<tr>
+<td>subtypes(sType)</td>
+<td>返回子类型</td>
+</tr>
+<tr>
+<td><font color=red>suggestIndexName()</font></td>
+<td>返回一个可用下标名i,j</td>
+</tr>
+<tr>
+<td><font color=red>suggestVariableName()</font></td>
+<td>返回一个可用的变量名</td>
+</tr>
+<tr>
+<td>suggestFirstVariableName(sFirstVariableName)</td>
+<td>Doesn't suggest true, false, this, super.</td>
+</tr>
+<tr>
+<td>time(sSystemTime)</td>
+<td>返回系统时间</td>
+</tr>
+<tr>
+<td>typeOfVariable(VAR)</td>
+<td>返回变量类型</td>
+</tr>
+<tr>
+<td>underscoresToCamelCase(sCamelCaseText)</td>
+<td>foo_bar=&gt;fooBar</td>
+</tr>
+<tr>
+<td>underscoresToSpaces(sParameterWithSpaces)</td>
+<td>foo_bar=&gt;foo bar</td>
+</tr>
+<tr>
+<td>user()</td>
+<td>返回当前用户名</td>
+</tr>
+<tr>
+<td><font color=red>variableOfType(<type>)</font></td>
+<td>返回一个推荐的该类型的变量，类型用全名如"java.util.Collection"</td>
+</tr>
+<tr>
+<td>JsArrayVariable</td>
+<td>返回JavaScript数组名</td>
+</tr>
+<tr>
+<td>jsClassName()</td>
+<td>返回当前js类名</td>
+</tr>
+<tr>
+<td>jsComponentType</td>
+<td>Returns the JavaScript component type.</td>
+</tr>
+<tr>
+<td>jsMethodName()</td>
+<td>返回JavaScript方法名</td>
+</tr>
+<tr>
+<td>jsQualifiedClassName</td>
+<td>返回JavaScript类全名</td>
+</tr>
+<tr>
+<td>jsSuggestIndexName</td>
+<td>JavaScript建议一个下标名</td>
+</tr>
+<tr>
+<td>jsSuggestVariableName</td>
+<td>JavaScript建议一个变量名</td>
+</tr>
+</tbody>
+</table>
+    </div>
+    <div id="footer">
+      <span>
+        <p>Copyright © 2016 Guosichuan.
+        Powered by <a href="http://simiki.org/" target="_blank">Simiki</a>.</p>
+        <p>Site Generated 2016-06-29 16:38:13</p>
+      </span>
+    </div>
+  </body>
+</html>

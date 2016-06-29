@@ -1,2 +1,0 @@
-# guosichuan.github.io
-gscwiki!
