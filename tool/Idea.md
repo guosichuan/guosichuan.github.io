@@ -1,47 +1,17 @@
-<!DOCTYPE HTML>
-<html>
-  <head>
-    <link rel="Stylesheet" type="text/css" href="/static/css/style.css">
-    <link rel="Stylesheet" type="text/css" href="/static/css/tango.css">
-    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
-    <link rel="icon" href="/favicon.ico" type="image/x-icon">
-    <link rel="alternate" type="application/atom+xml" href="atom.xml" title="Atom feed">
-    <title>IntelliJ Idea Keymap - Wiki Guosichuan</title>
-    <meta name="keywords" content="simiki, wiki, python, simple"/>
-    <meta name="description" content="Simiki is a simple static site generator for wiki."/>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-  </head>
+---
+title: "IntelliJ Idea Keymap"
+date: 2016-06-18 17:32
+collection: "IDE"
+---
 
-  <body>
-    <div id="container">
-      
-<div id="header">
-  <div class="post-nav"><a href="/">Home</a>&nbsp;&#187;&nbsp;<a href="/#tool">tool</a>&nbsp;&#187;&nbsp;IntelliJ Idea Keymap
-    <span class="updated">Updated&nbsp;
-      2016-06-18 17:32
-    </span></div>
-</div>
-<div class="clearfix"></div>
+#IntelliJ Idea快捷键
+@(IntellJ IDEA)[idea, keymap, simiki]
 
-<div class="page_title">IntelliJ Idea Keymap</div>
 
-  <h1 id="intellij-idea">IntelliJ Idea快捷键</h1>
-<p>@(IntellJ IDEA)[idea, keymap, simiki]</p>
-<div class="toc"><span class="toctitle">Table of Contents</span><ul>
-<li><a href="#intellij-idea">IntelliJ Idea快捷键</a><ul>
-<li><a href="#ctrl">Ctrl</a></li>
-<li><a href="#alt">Alt</a></li>
-<li><a href="#shift">Shift</a></li>
-<li><a href="#ctrl-alt">Ctrl + Alt</a></li>
-<li><a href="#ctrl-shift">Ctrl + Shift</a></li>
-<li><a href="#alt-shift">Alt + Shift</a></li>
-<li><a href="#ctrl-shift-alt">Ctrl + Shift + Alt</a></li>
-<li><a href="#_1">其他</a></li>
-</ul>
-</li>
-</ul>
-</div>
-<h2 id="ctrl">Ctrl</h2>
+[TOC]
+
+##Ctrl
+
 <table>
 <thead>
 <tr>
@@ -241,7 +211,8 @@
 </tbody>
 </table>
 
-<h2 id="alt">Alt</h2>
+##Alt
+
 <table>
 <thead>
 <tr>
@@ -313,7 +284,9 @@
 </tbody>
 </table>
 
-<h2 id="shift">Shift</h2>
+
+##Shift
+
 <table>
 <thead>
 <tr>
@@ -393,7 +366,8 @@
 </tbody>
 </table>
 
-<h2 id="ctrl-alt">Ctrl + Alt</h2>
+##Ctrl + Alt
+
 <table>
 <thead>
 <tr>
@@ -481,7 +455,9 @@
 </tbody>
 </table>
 
-<h2 id="ctrl-shift">Ctrl + Shift</h2>
+
+##Ctrl + Shift
+
 <table>
 <thead>
 <tr>
@@ -629,7 +605,8 @@
 </tbody>
 </table>
 
-<h2 id="alt-shift">Alt + Shift</h2>
+##Alt + Shift
+
 <table>
 <thead>
 <tr>
@@ -681,7 +658,8 @@
 </tbody>
 </table>
 
-<h2 id="ctrl-shift-alt">Ctrl + Shift + Alt</h2>
+##Ctrl + Shift + Alt
+
 <table>
 <thead>
 <tr>
@@ -709,7 +687,8 @@
 </tbody>
 </table>
 
-<h2 id="_1">其他</h2>
+##其他
+
 <table>
 <thead>
 <tr>
@@ -764,13 +743,3 @@
 </tr>
 </tbody>
 </table>
-    </div>
-    <div id="footer">
-      <span>
-        <p>Copyright © 2016 Guosichuan.
-        Powered by <a href="http://simiki.org/" target="_blank">Simiki</a>.</p>
-        <p>Site Generated 2016-06-29 16:38:13</p>
-      </span>
-    </div>
-  </body>
-</html>
