@@ -1,0 +1,205 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <link rel="Stylesheet" type="text/css" href="/static/css/style.css">
+    <link rel="Stylesheet" type="text/css" href="/static/css/tango.css">
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="alternate" type="application/atom+xml" href="atom.xml" title="Atom feed">
+    <title>Git - Wiki Guosichuan</title>
+    <meta name="keywords" content="simiki, wiki, python, simple"/>
+    <meta name="description" content="Simiki is a simple static site generator for wiki."/>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  </head>
+
+  <body>
+    <div id="container">
+      
+<div id="header">
+  <div class="post-nav"><a href="/">Home</a>&nbsp;&#187;&nbsp;<a href="/#tool">tool</a>&nbsp;&#187;&nbsp;Git
+    <span class="updated">Updated&nbsp;
+      2016-06-10 15:59
+    </span></div>
+</div>
+<div class="clearfix"></div>
+
+<div class="page_title">Git</div>
+
+  <h1 id="git">Git</h1>
+<p>@(GIT)[git,wiki]</p>
+<div class="toc"><span class="toctitle">Table of Contents</span><ul>
+<li><a href="#git">Git</a><ul>
+<li><a href="#git_1">安装Git</a></li>
+<li><a href="#_1">创建远程代码库</a></li>
+<li><a href="#git_2">设置Git</a></li>
+<li><a href="#_2">创建本地代码库</a></li>
+<li><a href="#_3">提交文件</a></li>
+<li><a href="#_4">创建分支</a></li>
+<li><a href="#_5">合并分支</a></li>
+<li><a href="#_6">丢弃分支</a></li>
+<li><a href="#_7">删除一个分支</a></li>
+<li><a href="#_8">回滚</a></li>
+<li><a href="#_9">推送到远程代码库</a></li>
+<li><a href="#_10">取得远程代码库的一份拷贝</a></li>
+<li><a href="#_11">别名</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<h2 id="git_1">安装Git</h2>
+<div class="hlcode"><pre>git clone https://github.com/git/git
+</pre></div>
+
+
+<h2 id="_1">创建远程代码库</h2>
+<p>相比于Github，BitBucket提供了不限制的私有代码库，这里也许更适合你。</p>
+<ol>
+<li>注册账号</li>
+<li>创建repository并记下代码库地址 https://guosichuan@bitbucket.org/guosichuan/mysimiki.git</li>
+</ol>
+<h2 id="git_2">设置Git</h2>
+<p>设置用户名</p>
+<div class="hlcode"><pre>git config --global user.name <span class="s2">&quot;guosichuan&quot;</span>
+</pre></div>
+
+
+<p>设置邮箱</p>
+<div class="hlcode"><pre>git config --global user.email <span class="s2">&quot;guosichuan@gmail.com&quot;</span>
+</pre></div>
+
+
+<h2 id="_2">创建本地代码库</h2>
+<p>初始化本地代码库</p>
+<div class="hlcode"><pre>git init
+</pre></div>
+
+
+<p>加载所有项目文件</p>
+<div class="hlcode"><pre>git add .
+</pre></div>
+
+
+<h2 id="_3">提交文件</h2>
+<p>提交已加载的文件</p>
+<div class="hlcode"><pre>git commit -m <span class="s2">&quot;initial commit&quot;</span>
+</pre></div>
+
+
+<p>询问git状态</p>
+<div class="hlcode"><pre>git status
+</pre></div>
+
+
+<h2 id="_4">创建分支</h2>
+<p>创建并同时切换到新建分支</p>
+<div class="hlcode"><pre>git checkout -b new_feature
+</pre></div>
+
+
+<p>相当于</p>
+<div class="hlcode"><pre>git branch new_feature
+git checkout new_feature
+</pre></div>
+
+
+<p>查看项目下的分支</p>
+<div class="hlcode"><pre>git branch
+</pre></div>
+
+
+<h2 id="_5">合并分支</h2>
+<p>先加载并提交</p>
+<div class="hlcode"><pre>git add .
+git commit -m <span class="s2">&quot;adds my new feature&quot;</span>
+</pre></div>
+
+
+<p>移动到主干分支</p>
+<div class="hlcode"><pre>git checkout master
+</pre></div>
+
+
+<p>合并到主干</p>
+<div class="hlcode"><pre>git merge new_feature
+</pre></div>
+
+
+<h2 id="_6">丢弃分支</h2>
+<p>加载并提交文件</p>
+<div class="hlcode"><pre>git add .
+git commit -m <span class="s2">&quot;feature to be discarded&quot;</span>
+</pre></div>
+
+
+<p>移动到主干分支</p>
+<div class="hlcode"><pre>git checkout master
+</pre></div>
+
+
+<h2 id="_7">删除一个分支</h2>
+<p>修改已经合并，从主干发送</p>
+<div class="hlcode"><pre>git branch -d new_feature
+</pre></div>
+
+
+<p>修改未合并须强行删除</p>
+<div class="hlcode"><pre>git branch -D new_feature
+</pre></div>
+
+
+<h2 id="_8">回滚</h2>
+<p>查看git 提交日志</p>
+<div class="hlcode"><pre>git log
+</pre></div>
+
+
+<p>回滚到某一次提交（ID开头9个字符）</p>
+<div class="hlcode"><pre>git checkout 085bb3bcb
+</pre></div>
+
+
+<p>也可以迁出一个旧版本的分支</p>
+<div class="hlcode"><pre>git checkout -b my_previous_version 085bb3bcb
+</pre></div>
+
+
+<h2 id="_9">推送到远程代码库</h2>
+<p>第一次添加本地代码库到远程代码库</p>
+<div class="hlcode"><pre>git remote add origin https://guosichuan@bitbucket.org/guosichuan/mysimiki.git
+</pre></div>
+
+
+<p>这里origin是别名，方便使用</p>
+<p>之后推送主干分支到远程代码库</p>
+<div class="hlcode"><pre>git push origin master
+</pre></div>
+
+
+<h2 id="_10">取得远程代码库的一份拷贝</h2>
+<p>第一次拷贝
+git clone https://guosichuan@bitbucket.org/guosichuan/mysimiki.git</p>
+<p>更新版本</p>
+<div class="hlcode"><pre>git pull origin master
+</pre></div>
+
+
+<h2 id="_11">别名</h2>
+<div class="hlcode"><pre>git config --global alias.c <span class="s1">&#39;commit -m&#39;</span>
+git config --global alias.co <span class="s1">&#39;checkout&#39;</span>
+git config --global alias.cob <span class="s1">&#39;checkout -b&#39;</span>
+git config --global alias.br <span class="s1">&#39;branch&#39;</span>
+git config --global alias.m <span class="s1">&#39;merge&#39;</span>
+git config --global alias.a <span class="s1">&#39;add .&#39;</span>
+git config --global alias.s <span class="s1">&#39;status&#39;</span>
+git config --global alias.dbr <span class="s1">&#39;branch -d&#39;</span>
+</pre></div>
+    </div>
+    <div id="footer">
+      <span>
+        <p>Copyright © 2016 Guosichuan.
+        Powered by <a href="http://simiki.org/" target="_blank">Simiki</a>.</p>
+        <p>Site Generated 2016-06-29 16:38:13</p>
+      </span>
+    </div>
+  </body>
+</html>
