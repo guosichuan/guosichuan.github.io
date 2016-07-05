@@ -1,0 +1,200 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <link rel="Stylesheet" type="text/css" href="/static/css/style.css">
+    <link rel="Stylesheet" type="text/css" href="/static/css/tango.css">
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="alternate" type="application/atom+xml" href="atom.xml" title="Atom feed">
+    <title>Mybatis 版 PropertyFilter - Wiki Guosichuan</title>
+    <meta name="keywords" content="simiki, wiki, python, simple"/>
+    <meta name="description" content="Simiki is a simple static site generator for wiki."/>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  </head>
+
+  <body>
+    <div id="container">
+      
+<div id="header">
+  <div class="post-nav"><a href="/">Home</a>&nbsp;&#187;&nbsp;<a href="/#coding">coding</a>&nbsp;&#187;&nbsp;Mybatis 版 PropertyFilter
+    <span class="updated">Updated&nbsp;
+      2016-07-05 18:50
+    </span></div>
+</div>
+<div class="clearfix"></div>
+
+<div class="page_title">Mybatis 版 PropertyFilter</div>
+
+  <h1 id="mybatis-propertyfilter">Mybatis 版 PropertyFilter</h1>
+<p>@(dspPlatform)[dspPlatform, mybatis, PropertyFilter]</p>
+<div class="toc"><span class="toctitle">Table of Contents</span><ul>
+<li><a href="#mybatis-propertyfilter">Mybatis 版 PropertyFilter</a><ul>
+<li><a href="#_1">前端调用</a><ul>
+<li><a href="#_2">等值</a></li>
+<li><a href="#_3">模糊匹配</a></li>
+<li><a href="#_4">属性或</a></li>
+<li><a href="#_5">值类型</a></li>
+</ul>
+</li>
+<li><a href="#_6">后台调用</a><ul>
+<li><a href="#_7">列表或数组</a></li>
+<li><a href="#sql">直接sql</a></li>
+<li><a href="#_8">属性或</a></li>
+<li><a href="#_9">关系与</a></li>
+<li><a href="#_10">关系或</a></li>
+</ul>
+</li>
+<li><a href="#_11">普通查询</a></li>
+<li><a href="#_12">分页查询</a></li>
+<li><a href="#sqlmapperxml">SqlMapper.xml</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<h2 id="_1">前端调用</h2>
+<h3 id="_2">等值</h3>
+<div class="hlcode"><pre><span class="n">filter_EQI_style_value</span>
+</pre></div>
+
+
+<h3 id="_3">模糊匹配</h3>
+<div class="hlcode"><pre><span class="n">filter_LIKES_slot_id</span>
+<span class="n">filter_LIKES_LL_slot_id</span>
+<span class="n">filter_LIKES_RL_slot_id</span>
+</pre></div>
+
+
+<h3 id="_4">属性或</h3>
+<div class="hlcode"><pre><span class="n">filter_EQI_ad_space_id</span><span class="o">||</span><span class="n">style_value</span>
+</pre></div>
+
+
+<h3 id="_5">值类型</h3>
+<div class="hlcode"><pre><span class="cm">/** String */</span>
+<span class="k">case</span> <span class="s">&quot;S&quot;</span><span class="o">:</span>
+<span class="cm">/** Integer */</span>
+<span class="k">case</span> <span class="s">&quot;I&quot;</span><span class="o">:</span>
+<span class="cm">/** Long */</span>
+<span class="k">case</span> <span class="s">&quot;L&quot;</span><span class="o">:</span>
+<span class="cm">/** Double */</span>
+<span class="k">case</span> <span class="s">&quot;N&quot;</span><span class="o">:</span>
+<span class="cm">/** Boolean */</span>
+<span class="k">case</span> <span class="s">&quot;B&quot;</span><span class="o">:</span>
+<span class="cm">/** Date */</span>
+<span class="k">case</span> <span class="s">&quot;D&quot;</span><span class="o">:</span>
+</pre></div>
+
+
+<h2 id="_6">后台调用</h2>
+<h3 id="_7">列表或数组</h3>
+<div class="hlcode"><pre> <span class="n">MybatisPropertyFilter</span> <span class="n">filter</span> <span class="o">=</span> <span class="k">new</span> <span class="n">MybatisPropertyFilter</span><span class="o">();</span>
+ <span class="n">List</span> <span class="n">list</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">();</span>
+ <span class="n">list</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="s">&quot;pinyou&quot;</span><span class="o">);</span>
+ <span class="n">list</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="s">&quot;ranshi&quot;</span><span class="o">);</span>
+ <span class="n">filter</span><span class="o">.</span><span class="na">addCriterion</span><span class="o">(</span><span class="s">&quot;name&quot;</span><span class="o">,</span><span class="n">list</span><span class="o">,</span> <span class="n">MybatisPropertyFilter</span><span class="o">.</span><span class="na">MatchType</span><span class="o">.</span><span class="na">EQ</span><span class="o">);</span><span class="c1">//第一个criteria</span>
+ <span class="c1">//filter.addCriterion(&quot;name&quot;,list, MybatisPropertyFilter.MatchType.NE);//第一个criteria</span>
+</pre></div>
+
+
+<h3 id="sql">直接sql</h3>
+<div class="hlcode"><pre><span class="n">MybatisPropertyFilter</span> <span class="n">filter</span> <span class="o">=</span> <span class="k">new</span> <span class="n">MybatisPropertyFilter</span><span class="o">();</span>
+<span class="n">filter</span><span class="o">.</span><span class="na">addCriterion</span><span class="o">(</span><span class="s">&quot;name = &#39;pinyou&#39;&quot;</span><span class="o">);</span>
+</pre></div>
+
+
+<h3 id="_8">属性或</h3>
+<div class="hlcode"><pre><span class="n">MybatisPropertyFilter</span> <span class="n">filter</span> <span class="o">=</span> <span class="k">new</span> <span class="n">MybatisPropertyFilter</span><span class="o">();</span>
+<span class="n">filter</span><span class="o">.</span><span class="na">addCriterion</span><span class="o">(</span><span class="s">&quot;id||code&quot;</span><span class="o">,</span> <span class="mi">1</span><span class="o">,</span> <span class="n">MybatisPropertyFilter</span><span class="o">.</span><span class="na">MatchType</span><span class="o">.</span><span class="na">EQ</span><span class="o">);</span>
+</pre></div>
+
+
+<h3 id="_9">关系与</h3>
+<div class="hlcode"><pre><span class="n">MybatisPropertyFilter</span> <span class="n">filter</span> <span class="o">=</span> <span class="k">new</span> <span class="n">MybatisPropertyFilter</span><span class="o">();</span>
+<span class="n">filter</span><span class="o">.</span><span class="na">addCriterion</span><span class="o">(</span><span class="s">&quot;id&quot;</span><span class="o">,</span> <span class="mi">1</span><span class="o">,</span> <span class="n">MybatisPropertyFilter</span><span class="o">.</span><span class="na">MatchType</span><span class="o">.</span><span class="na">EQ</span><span class="o">,</span><span class="mi">0</span><span class="o">);</span><span class="c1">//第一个criteria</span>
+<span class="n">filter</span><span class="o">.</span><span class="na">addCriterion</span><span class="o">(</span><span class="s">&quot;name&quot;</span><span class="o">,</span> <span class="s">&quot;pinyou&quot;</span><span class="o">,</span> <span class="n">MybatisPropertyFilter</span><span class="o">.</span><span class="na">MatchType</span><span class="o">.</span><span class="na">EQ</span><span class="o">,</span><span class="mi">0</span><span class="o">);</span><span class="c1">//还是第一个criteria</span>
+</pre></div>
+
+
+<h3 id="_10">关系或</h3>
+<div class="hlcode"><pre><span class="n">MybatisPropertyFilter</span> <span class="n">filter</span> <span class="o">=</span> <span class="k">new</span> <span class="n">MybatisPropertyFilter</span><span class="o">();</span>
+<span class="n">filter</span><span class="o">.</span><span class="na">addCriterion</span><span class="o">(</span><span class="s">&quot;id&quot;</span><span class="o">,</span> <span class="mi">1</span><span class="o">,</span> <span class="n">MybatisPropertyFilter</span><span class="o">.</span><span class="na">MatchType</span><span class="o">.</span><span class="na">EQ</span><span class="o">,</span><span class="mi">0</span><span class="o">);</span><span class="c1">//第一个criteria</span>
+<span class="n">filter</span><span class="o">.</span><span class="na">addCriterion</span><span class="o">(</span><span class="s">&quot;id&quot;</span><span class="o">,</span> <span class="mi">41</span><span class="o">,</span> <span class="n">MybatisPropertyFilter</span><span class="o">.</span><span class="na">MatchType</span><span class="o">.</span><span class="na">EQ</span><span class="o">,</span><span class="mi">1</span><span class="o">);</span><span class="c1">//第二个criteria</span>
+</pre></div>
+
+
+<h2 id="_11">普通查询</h2>
+<div class="hlcode"><pre>    <span class="nt">&lt;select</span> <span class="na">id=</span><span class="s">&quot;selectDspInfo&quot;</span>
+        <span class="na">parameterType=</span><span class="s">&quot;map&quot;</span>
+        <span class="na">resultMap=</span><span class="s">&quot;dspInfoResult&quot;</span><span class="nt">&gt;</span>
+        select *
+        from TB_DSP r
+        <span class="nt">&lt;include</span> <span class="na">refid=</span><span class="s">&quot;SqlMapper.Example_Where_Clause_None_Order&quot;</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;/select&gt;</span>
+</pre></div>
+
+
+<h2 id="_12">分页查询</h2>
+<div class="hlcode"><pre>    <span class="nt">&lt;select</span> <span class="na">id=</span><span class="s">&quot;selectDspInfoPage&quot;</span> <span class="na">parameterType=</span><span class="s">&quot;map&quot;</span>  <span class="na">resultMap=</span><span class="s">&quot;dspInfoResult&quot;</span> <span class="nt">&gt;</span>  
+        select *
+        from
+        (
+            select r.*,rownum as rn
+            from 
+            (
+                select * from TB_DSP
+                <span class="nt">&lt;include</span> <span class="na">refid=</span><span class="s">&quot;SqlMapper.Example_Where_Clause_None_Order&quot;</span><span class="nt">/&gt;</span>
+                order by ${page.orderSql}
+            ) r
+        ) t
+        where (rn <span class="ni">&amp;gt;</span> (#{page.first}+1) or rn = (#{page.first}+1)) and rn <span class="ni">&amp;lt;</span> ((#{page.first}+1) + #{page.pageSize})
+     <span class="nt">&lt;/select&gt;</span>  
+</pre></div>
+
+
+<h2 id="sqlmapperxml">SqlMapper.xml</h2>
+<div class="hlcode"><pre><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+<span class="cp">&lt;!DOCTYPE mapper PUBLIC &quot;-//mybatis.org//DTD Mapper 3.0//EN&quot; &quot;http://mybatis.org/dtd/mybatis-3-mapper.dtd&quot; &gt;</span>
+<span class="nt">&lt;mapper</span> <span class="na">namespace=</span><span class="s">&quot;SqlMapper&quot;</span><span class="nt">&gt;</span>
+<span class="nt">&lt;sql</span> <span class="na">id=</span><span class="s">&quot;Example_Where_Clause_None_Order&quot;</span><span class="nt">&gt;</span>  
+    <span class="nt">&lt;where&gt;</span>  
+        <span class="nt">&lt;foreach</span> <span class="na">collection=</span><span class="s">&quot;filter.oredCriteria&quot;</span> <span class="na">item=</span><span class="s">&quot;criteria&quot;</span> <span class="na">separator=</span><span class="s">&quot;or&quot;</span><span class="nt">&gt;</span>  
+            <span class="nt">&lt;if</span> <span class="na">test=</span><span class="s">&quot;criteria.valid&quot;</span><span class="nt">&gt;</span>  
+                <span class="nt">&lt;trim</span> <span class="na">prefix=</span><span class="s">&quot;(&quot;</span> <span class="na">suffix=</span><span class="s">&quot;)&quot;</span> <span class="na">prefixOverrides=</span><span class="s">&quot;and&quot;</span><span class="nt">&gt;</span>  
+                    <span class="nt">&lt;foreach</span> <span class="na">collection=</span><span class="s">&quot;criteria.criteria&quot;</span> <span class="na">item=</span><span class="s">&quot;criterion&quot;</span><span class="nt">&gt;</span>  
+                        <span class="nt">&lt;choose&gt;</span>  
+                            <span class="nt">&lt;when</span> <span class="na">test=</span><span class="s">&quot;criterion.noValue&quot;</span><span class="nt">&gt;</span>  
+                                and ${criterion.condition}  
+                             <span class="nt">&lt;/when&gt;</span>  
+                             <span class="nt">&lt;when</span> <span class="na">test=</span><span class="s">&quot;criterion.singleValue&quot;</span><span class="nt">&gt;</span>  
+                                 and ${criterion.condition} #{criterion.value}  
+                             <span class="nt">&lt;/when&gt;</span>  
+                             <span class="nt">&lt;when</span> <span class="na">test=</span><span class="s">&quot;criterion.betweenValue&quot;</span><span class="nt">&gt;</span>  
+                                 and ${criterion.condition} #{criterion.value} and  
+                                 #{criterion.secondValue}  
+                             <span class="nt">&lt;/when&gt;</span>  
+                             <span class="nt">&lt;when</span> <span class="na">test=</span><span class="s">&quot;criterion.listValue&quot;</span><span class="nt">&gt;</span>  
+                                 and ${criterion.condition}  
+                                 <span class="nt">&lt;foreach</span> <span class="na">collection=</span><span class="s">&quot;criterion.value&quot;</span> <span class="na">item=</span><span class="s">&quot;listItem&quot;</span>  
+                                     <span class="na">open=</span><span class="s">&quot;(&quot;</span> <span class="na">close=</span><span class="s">&quot;)&quot;</span> <span class="na">separator=</span><span class="s">&quot;,&quot;</span><span class="nt">&gt;</span>  
+                                     #{listItem}  
+                                 <span class="nt">&lt;/foreach&gt;</span>  
+                             <span class="nt">&lt;/when&gt;</span>  
+                         <span class="nt">&lt;/choose&gt;</span>  
+                     <span class="nt">&lt;/foreach&gt;</span>  
+                 <span class="nt">&lt;/trim&gt;</span>  
+             <span class="nt">&lt;/if&gt;</span>  
+         <span class="nt">&lt;/foreach&gt;</span>  
+     <span class="nt">&lt;/where&gt;</span>  
+ <span class="nt">&lt;/sql&gt;</span>  
+<span class="nt">&lt;/mapper&gt;</span>
+</pre></div>
+    </div>
+    <div id="footer">
+      <span>
+        <p>Copyright © 2016 Guosichuan.
+        Powered by <a href="http://simiki.org/" target="_blank">Simiki</a>.</p>
+        <p>Site Generated 2016-07-05 21:01:49</p>
+      </span>
+    </div>
+  </body>
+</html>
