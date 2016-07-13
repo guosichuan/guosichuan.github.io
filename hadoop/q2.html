@@ -29,6 +29,7 @@
 <p>@(bigdata)[hive, mysql, simiki]</p>
 <div class="toc"><span class="toctitle">Table of Contents</span><ul>
 <li><a href="#_1">易投广告日志分析报表</a><ul>
+<li><a href="#mobile_ad_space">mobile_ad_space表</a></li>
 <li><a href="#updateid">来自updateId表</a><ul>
 <li><a href="#_2">各应用分平台用户总数</a></li>
 <li><a href="#_3">各应用分平台新用户（按日、月、全部），并按地域分布</a></li>
@@ -42,15 +43,99 @@
 <li><a href="#dau">各应用分平台日活跃用户(DAU)</a></li>
 <li><a href="#dau_1">各应用分平台DAU,并按地域分布</a></li>
 <li><a href="#mau">各应用分平台月活跃用户(MAU)</a></li>
+<li><a href="#_6">新闻客户端头条第一条信息流分广告位分地域刷新数</a></li>
+<li><a href="#_7">新闻客户端头条分广告位分地域曝光点击数</a></li>
 <li><a href="#settingleft">新闻客户端启动(setting)、左滑(left)、封面故事</a></li>
-<li><a href="#_6">文章页图文用户真正看到的比例（未做）</a></li>
+<li><a href="#_8">文章页图文用户真正看到的比例（未做）</a></li>
 </ul>
 </li>
 </ul>
 </li>
 </ul>
 </div>
+<h3 id="mobile_ad_space">mobile_ad_space表</h3>
+<div class="hlcode"><pre><span class="k">CREATE</span> <span class="k">TABLE</span> <span class="o">`</span><span class="n">mobile_ad_space</span><span class="o">`</span><span class="p">(</span>
+  <span class="o">`</span><span class="n">space_id</span><span class="o">`</span> <span class="nb">int</span> <span class="k">COMMENT</span> <span class="s1">&#39;space_id&#39;</span><span class="p">,</span> 
+  <span class="o">`</span><span class="n">app_id</span><span class="o">`</span> <span class="n">string</span> <span class="k">COMMENT</span> <span class="s1">&#39;app_id&#39;</span><span class="p">,</span> 
+  <span class="o">`</span><span class="n">platform</span><span class="o">`</span> <span class="n">string</span> <span class="k">COMMENT</span> <span class="s1">&#39;platform&#39;</span><span class="p">,</span> 
+  <span class="o">`</span><span class="n">category</span><span class="o">`</span> <span class="n">string</span> <span class="k">COMMENT</span> <span class="s1">&#39;category&#39;</span><span class="p">,</span> 
+  <span class="o">`</span><span class="k">location</span><span class="o">`</span> <span class="n">string</span> <span class="k">COMMENT</span> <span class="s1">&#39;location&#39;</span><span class="p">)</span>
+<span class="k">ROW</span> <span class="n">FORMAT</span> <span class="n">DELIMITED</span> 
+  <span class="n">FIELDS</span> <span class="n">TERMINATED</span> <span class="k">BY</span> <span class="s1">&#39; &#39;</span> 
+  <span class="n">LINES</span> <span class="n">TERMINATED</span> <span class="k">BY</span> <span class="s1">&#39;\n&#39;</span> 
+<span class="n">STORED</span> <span class="k">AS</span> <span class="n">INPUTFORMAT</span> 
+  <span class="s1">&#39;org.apache.hadoop.mapred.TextInputFormat&#39;</span> 
+<span class="n">OUTPUTFORMAT</span> 
+  <span class="s1">&#39;org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat&#39;</span>
+<span class="k">LOCATION</span>
+  <span class="s1">&#39;hdfs://hz-cluster2/user/mad/hive/warehouse/adstat.db/mobile_ad_space&#39;</span>
+<span class="n">TBLPROPERTIES</span> <span class="p">(</span>
+  <span class="s1">&#39;COLUMN_STATS_ACCURATE&#39;</span><span class="o">=</span><span class="s1">&#39;true&#39;</span><span class="p">,</span> 
+  <span class="s1">&#39;numFiles&#39;</span><span class="o">=</span><span class="s1">&#39;1&#39;</span><span class="p">,</span> 
+  <span class="s1">&#39;numRows&#39;</span><span class="o">=</span><span class="s1">&#39;0&#39;</span><span class="p">,</span> 
+  <span class="s1">&#39;rawDataSize&#39;</span><span class="o">=</span><span class="s1">&#39;0&#39;</span><span class="p">,</span> 
+  <span class="s1">&#39;totalSize&#39;</span><span class="o">=</span><span class="s1">&#39;50038&#39;</span><span class="p">,</span> 
+  <span class="s1">&#39;transient_lastDdlTime&#39;</span><span class="o">=</span><span class="s1">&#39;1463571970&#39;</span><span class="p">)</span>
+</pre></div>
+
+
 <h3 id="updateid">来自updateId表</h3>
+<div class="hlcode"><pre><span class="k">CREATE</span> <span class="k">EXTERNAL</span> <span class="k">TABLE</span> <span class="o">`</span><span class="n">mobile_day_id_lastest</span><span class="o">`</span><span class="p">(</span>
+  <span class="o">`</span><span class="n">datype</span><span class="o">`</span> <span class="n">string</span> <span class="k">COMMENT</span> <span class="s1">&#39;from deserializer&#39;</span><span class="p">,</span> 
+  <span class="o">`</span><span class="n">uptime</span><span class="o">`</span> <span class="nb">bigint</span> <span class="k">COMMENT</span> <span class="s1">&#39;from deserializer&#39;</span><span class="p">,</span> 
+  <span class="o">`</span><span class="n">last_uptime</span><span class="o">`</span> <span class="nb">bigint</span> <span class="k">COMMENT</span> <span class="s1">&#39;from deserializer&#39;</span><span class="p">,</span> 
+  <span class="o">`</span><span class="n">first_uptime</span><span class="o">`</span> <span class="nb">bigint</span> <span class="k">COMMENT</span> <span class="s1">&#39;from deserializer&#39;</span><span class="p">,</span> 
+  <span class="o">`</span><span class="n">persistedtime</span><span class="o">`</span> <span class="nb">bigint</span> <span class="k">COMMENT</span> <span class="s1">&#39;from deserializer&#39;</span><span class="p">,</span> 
+  <span class="o">`</span><span class="n">appver</span><span class="o">`</span> <span class="n">string</span> <span class="k">COMMENT</span> <span class="s1">&#39;from deserializer&#39;</span><span class="p">,</span> 
+  <span class="o">`</span><span class="n">appchannel</span><span class="o">`</span> <span class="n">string</span> <span class="k">COMMENT</span> <span class="s1">&#39;from deserializer&#39;</span><span class="p">,</span> 
+  <span class="o">`</span><span class="n">sdkversion</span><span class="o">`</span> <span class="n">string</span> <span class="k">COMMENT</span> <span class="s1">&#39;from deserializer&#39;</span><span class="p">,</span> 
+  <span class="o">`</span><span class="n">daid</span><span class="o">`</span> <span class="n">string</span> <span class="k">COMMENT</span> <span class="s1">&#39;from deserializer&#39;</span><span class="p">,</span> 
+  <span class="o">`</span><span class="n">model</span><span class="o">`</span> <span class="n">string</span> <span class="k">COMMENT</span> <span class="s1">&#39;from deserializer&#39;</span><span class="p">,</span> 
+  <span class="o">`</span><span class="n">carrier</span><span class="o">`</span> <span class="n">string</span> <span class="k">COMMENT</span> <span class="s1">&#39;from deserializer&#39;</span><span class="p">,</span> 
+  <span class="o">`</span><span class="n">network_status</span><span class="o">`</span> <span class="n">string</span> <span class="k">COMMENT</span> <span class="s1">&#39;from deserializer&#39;</span><span class="p">,</span> 
+  <span class="o">`</span><span class="k">language</span><span class="o">`</span> <span class="n">string</span> <span class="k">COMMENT</span> <span class="s1">&#39;from deserializer&#39;</span><span class="p">,</span> 
+  <span class="o">`</span><span class="n">country</span><span class="o">`</span> <span class="n">string</span> <span class="k">COMMENT</span> <span class="s1">&#39;from deserializer&#39;</span><span class="p">,</span> 
+  <span class="o">`</span><span class="n">app</span><span class="o">`</span> <span class="n">string</span> <span class="k">COMMENT</span> <span class="s1">&#39;from deserializer&#39;</span><span class="p">,</span> 
+  <span class="o">`</span><span class="n">urs</span><span class="o">`</span> <span class="n">string</span> <span class="k">COMMENT</span> <span class="s1">&#39;from deserializer&#39;</span><span class="p">,</span> 
+  <span class="o">`</span><span class="n">imei</span><span class="o">`</span> <span class="n">string</span> <span class="k">COMMENT</span> <span class="s1">&#39;from deserializer&#39;</span><span class="p">,</span> 
+  <span class="o">`</span><span class="n">mac</span><span class="o">`</span> <span class="n">string</span> <span class="k">COMMENT</span> <span class="s1">&#39;from deserializer&#39;</span><span class="p">,</span> 
+  <span class="o">`</span><span class="n">idfa</span><span class="o">`</span> <span class="n">string</span> <span class="k">COMMENT</span> <span class="s1">&#39;from deserializer&#39;</span><span class="p">,</span> 
+  <span class="o">`</span><span class="n">idfv</span><span class="o">`</span> <span class="n">string</span> <span class="k">COMMENT</span> <span class="s1">&#39;from deserializer&#39;</span><span class="p">,</span> 
+  <span class="o">`</span><span class="n">open_uuid</span><span class="o">`</span> <span class="n">string</span> <span class="k">COMMENT</span> <span class="s1">&#39;from deserializer&#39;</span><span class="p">,</span> 
+  <span class="o">`</span><span class="n">os</span><span class="o">`</span> <span class="n">string</span> <span class="k">COMMENT</span> <span class="s1">&#39;from deserializer&#39;</span><span class="p">,</span> 
+  <span class="o">`</span><span class="n">os_ver</span><span class="o">`</span> <span class="n">string</span> <span class="k">COMMENT</span> <span class="s1">&#39;from deserializer&#39;</span><span class="p">,</span> 
+  <span class="o">`</span><span class="n">company</span><span class="o">`</span> <span class="n">string</span> <span class="k">COMMENT</span> <span class="s1">&#39;from deserializer&#39;</span><span class="p">,</span> 
+  <span class="o">`</span><span class="n">scr_res</span><span class="o">`</span> <span class="n">string</span> <span class="k">COMMENT</span> <span class="s1">&#39;from deserializer&#39;</span><span class="p">,</span> 
+  <span class="o">`</span><span class="n">agent_type</span><span class="o">`</span> <span class="n">string</span> <span class="k">COMMENT</span> <span class="s1">&#39;from deserializer&#39;</span><span class="p">,</span> 
+  <span class="o">`</span><span class="n">bssid</span><span class="o">`</span> <span class="n">string</span> <span class="k">COMMENT</span> <span class="s1">&#39;from deserializer&#39;</span><span class="p">,</span> 
+  <span class="o">`</span><span class="n">la</span><span class="o">`</span> <span class="n">string</span> <span class="k">COMMENT</span> <span class="s1">&#39;from deserializer&#39;</span><span class="p">,</span> 
+  <span class="o">`</span><span class="n">lo</span><span class="o">`</span> <span class="n">string</span> <span class="k">COMMENT</span> <span class="s1">&#39;from deserializer&#39;</span><span class="p">,</span> 
+  <span class="o">`</span><span class="n">loa_type</span><span class="o">`</span> <span class="n">string</span> <span class="k">COMMENT</span> <span class="s1">&#39;from deserializer&#39;</span><span class="p">,</span> 
+  <span class="o">`</span><span class="n">gps_timestamp</span><span class="o">`</span> <span class="n">string</span> <span class="k">COMMENT</span> <span class="s1">&#39;from deserializer&#39;</span><span class="p">,</span> 
+  <span class="o">`</span><span class="n">province</span><span class="o">`</span> <span class="n">string</span> <span class="k">COMMENT</span> <span class="s1">&#39;from deserializer&#39;</span><span class="p">,</span> 
+  <span class="o">`</span><span class="n">city</span><span class="o">`</span> <span class="n">string</span> <span class="k">COMMENT</span> <span class="s1">&#39;from deserializer&#39;</span><span class="p">,</span> 
+  <span class="o">`</span><span class="n">uniqueid</span><span class="o">`</span> <span class="n">string</span> <span class="k">COMMENT</span> <span class="s1">&#39;from deserializer&#39;</span><span class="p">)</span>
+<span class="n">CLUSTERED</span> <span class="k">BY</span> <span class="p">(</span> 
+  <span class="n">uniqueid</span><span class="p">)</span> 
+<span class="k">INTO</span> <span class="mi">32</span> <span class="n">BUCKETS</span>
+<span class="k">ROW</span> <span class="n">FORMAT</span> <span class="n">SERDE</span> 
+  <span class="s1">&#39;org.openx.data.jsonserde.JsonSerDe&#39;</span> 
+<span class="n">STORED</span> <span class="k">AS</span> <span class="n">INPUTFORMAT</span> 
+  <span class="s1">&#39;com.hadoop.mapred.DeprecatedLzoTextInputFormat&#39;</span> 
+<span class="n">OUTPUTFORMAT</span> 
+  <span class="s1">&#39;org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat&#39;</span>
+<span class="k">LOCATION</span>
+  <span class="s1">&#39;hdfs://hz-cluster2/user/mad/hive/warehouse/adstat.db/mobile_day_id_lastest&#39;</span>
+<span class="n">TBLPROPERTIES</span> <span class="p">(</span>
+  <span class="s1">&#39;COLUMN_STATS_ACCURATE&#39;</span><span class="o">=</span><span class="s1">&#39;true&#39;</span><span class="p">,</span> 
+  <span class="s1">&#39;numFiles&#39;</span><span class="o">=</span><span class="s1">&#39;64&#39;</span><span class="p">,</span> 
+  <span class="s1">&#39;numRows&#39;</span><span class="o">=</span><span class="s1">&#39;0&#39;</span><span class="p">,</span> 
+  <span class="s1">&#39;rawDataSize&#39;</span><span class="o">=</span><span class="s1">&#39;0&#39;</span><span class="p">,</span> 
+  <span class="s1">&#39;totalSize&#39;</span><span class="o">=</span><span class="s1">&#39;64330823118&#39;</span><span class="p">,</span> 
+  <span class="s1">&#39;transient_lastDdlTime&#39;</span><span class="o">=</span><span class="s1">&#39;1468383722&#39;</span><span class="p">)</span>
+</pre></div>
+
+
 <h4 id="_2">各应用分平台用户总数</h4>
 <ol>
 <li>tb_usr_stat</li>
@@ -176,7 +261,7 @@
   <span class="k">WHEN</span> <span class="n">upid</span><span class="p">.</span><span class="n">idfa</span> <span class="k">is</span> <span class="k">not</span> <span class="k">NULL</span> <span class="k">and</span> <span class="n">upid</span><span class="p">.</span><span class="n">idfa</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span>  <span class="k">THEN</span> <span class="s1">&#39;ios&#39;</span>
   <span class="k">WHEN</span> <span class="n">upid</span><span class="p">.</span><span class="n">imei</span> <span class="k">is</span> <span class="k">not</span> <span class="k">NULL</span> <span class="k">and</span> <span class="n">upid</span><span class="p">.</span><span class="n">imei</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span>  <span class="k">THEN</span> <span class="s1">&#39;android&#39;</span>
   <span class="k">ELSE</span> <span class="s1">&#39;other&#39;</span>
-<span class="k">END</span> <span class="k">as</span> <span class="n">platform</span><span class="p">,</span><span class="n">province</span><span class="p">,</span><span class="n">city</span> <span class="k">from</span> <span class="n">mobile_day_id_lastest</span> <span class="n">upid</span> <span class="k">where</span> <span class="n">first_uptime</span><span class="o">&gt;=</span> <span class="mi">1467334800</span> <span class="k">and</span> <span class="n">first_uptime</span> <span class="o">&lt;</span> <span class="mi">1464710400</span> <span class="p">)</span> <span class="n">t</span>
+<span class="k">END</span> <span class="k">as</span> <span class="n">platform</span><span class="p">,</span><span class="n">province</span><span class="p">,</span><span class="n">city</span> <span class="k">from</span> <span class="n">mobile_day_id_lastest</span> <span class="n">upid</span> <span class="k">where</span> <span class="p">(</span><span class="n">first_uptime</span><span class="o">&gt;=</span> <span class="mi">1467334800</span> <span class="k">and</span> <span class="n">first_uptime</span> <span class="o">&lt;</span> <span class="mi">1464710400</span><span class="p">)</span> <span class="k">or</span> <span class="p">(</span><span class="n">first_uptime</span><span class="o">&gt;=</span> <span class="mi">1467334800000</span> <span class="k">and</span> <span class="n">first_uptime</span> <span class="o">&lt;</span> <span class="mi">1464710400000</span><span class="p">)</span> <span class="p">)</span> <span class="n">t</span>
 <span class="k">group</span> <span class="k">by</span> <span class="n">app</span><span class="p">,</span><span class="n">platform</span><span class="p">,</span><span class="n">province</span><span class="p">,</span><span class="n">city</span> <span class="k">having</span> <span class="n">new_usr_num</span><span class="o">&gt;</span><span class="mi">5</span>
 </pre></div>
 
@@ -338,6 +423,55 @@
 
 <h4 id="app"><strong><em>新闻客户端与其他app用户重合度（未做）</em></strong></h4>
 <h3 id="adlog">来自Adlog表</h3>
+<div class="hlcode"><pre><span class="k">CREATE</span> <span class="k">EXTERNAL</span> <span class="k">TABLE</span> <span class="o">`</span><span class="n">mobile_day_adlog</span><span class="o">`</span><span class="p">(</span>
+  <span class="o">`</span><span class="n">time</span><span class="o">`</span> <span class="n">string</span> <span class="k">COMMENT</span> <span class="s1">&#39;from deserializer&#39;</span><span class="p">,</span> 
+  <span class="o">`</span><span class="n">ip</span><span class="o">`</span> <span class="n">string</span> <span class="k">COMMENT</span> <span class="s1">&#39;from deserializer&#39;</span><span class="p">,</span> 
+  <span class="o">`</span><span class="n">city</span><span class="o">`</span> <span class="n">string</span> <span class="k">COMMENT</span> <span class="s1">&#39;from deserializer&#39;</span><span class="p">,</span> 
+  <span class="o">`</span><span class="n">province</span><span class="o">`</span> <span class="n">string</span> <span class="k">COMMENT</span> <span class="s1">&#39;from deserializer&#39;</span><span class="p">,</span> 
+  <span class="o">`</span><span class="n">adid</span><span class="o">`</span> <span class="n">string</span> <span class="k">COMMENT</span> <span class="s1">&#39;from deserializer&#39;</span><span class="p">,</span> 
+  <span class="o">`</span><span class="n">flightid</span><span class="o">`</span> <span class="n">string</span> <span class="k">COMMENT</span> <span class="s1">&#39;from deserializer&#39;</span><span class="p">,</span> 
+  <span class="o">`</span><span class="k">show</span><span class="o">`</span> <span class="nb">int</span> <span class="k">COMMENT</span> <span class="s1">&#39;from deserializer&#39;</span><span class="p">,</span> 
+  <span class="o">`</span><span class="n">click</span><span class="o">`</span> <span class="nb">int</span> <span class="k">COMMENT</span> <span class="s1">&#39;from deserializer&#39;</span><span class="p">,</span> 
+  <span class="o">`</span><span class="n">urs</span><span class="o">`</span> <span class="n">string</span> <span class="k">COMMENT</span> <span class="s1">&#39;from deserializer&#39;</span><span class="p">,</span> 
+  <span class="o">`</span><span class="n">networkstatus</span><span class="o">`</span> <span class="n">string</span> <span class="k">COMMENT</span> <span class="s1">&#39;from deserializer&#39;</span><span class="p">,</span> 
+  <span class="o">`</span><span class="n">deviceid</span><span class="o">`</span> <span class="n">string</span> <span class="k">COMMENT</span> <span class="s1">&#39;from deserializer&#39;</span><span class="p">,</span> 
+  <span class="o">`</span><span class="n">devicetype</span><span class="o">`</span> <span class="nb">int</span> <span class="k">COMMENT</span> <span class="s1">&#39;from deserializer&#39;</span><span class="p">,</span> 
+  <span class="o">`</span><span class="n">app</span><span class="o">`</span> <span class="n">string</span> <span class="k">COMMENT</span> <span class="s1">&#39;from deserializer&#39;</span><span class="p">,</span> 
+  <span class="o">`</span><span class="n">la</span><span class="o">`</span> <span class="n">string</span> <span class="k">COMMENT</span> <span class="s1">&#39;from deserializer&#39;</span><span class="p">,</span> 
+  <span class="o">`</span><span class="n">lo</span><span class="o">`</span> <span class="n">string</span> <span class="k">COMMENT</span> <span class="s1">&#39;from deserializer&#39;</span><span class="p">,</span> 
+  <span class="o">`</span><span class="n">bssid</span><span class="o">`</span> <span class="n">string</span> <span class="k">COMMENT</span> <span class="s1">&#39;from deserializer&#39;</span><span class="p">,</span> 
+  <span class="o">`</span><span class="n">loatype</span><span class="o">`</span> <span class="n">string</span> <span class="k">COMMENT</span> <span class="s1">&#39;from deserializer&#39;</span><span class="p">,</span> 
+  <span class="o">`</span><span class="n">sdkversion</span><span class="o">`</span> <span class="n">string</span> <span class="k">COMMENT</span> <span class="s1">&#39;from deserializer&#39;</span><span class="p">,</span> 
+  <span class="o">`</span><span class="n">seen</span><span class="o">`</span> <span class="nb">int</span> <span class="k">COMMENT</span> <span class="s1">&#39;from deserializer&#39;</span><span class="p">,</span> 
+  <span class="o">`</span><span class="n">appversion</span><span class="o">`</span> <span class="n">string</span> <span class="k">COMMENT</span> <span class="s1">&#39;from deserializer&#39;</span><span class="p">,</span> 
+  <span class="o">`</span><span class="n">reqid</span><span class="o">`</span> <span class="n">string</span> <span class="k">COMMENT</span> <span class="s1">&#39;from deserializer&#39;</span><span class="p">,</span> 
+  <span class="o">`</span><span class="n">tag</span><span class="o">`</span> <span class="n">string</span> <span class="k">COMMENT</span> <span class="s1">&#39;from deserializer&#39;</span><span class="p">,</span> 
+  <span class="o">`</span><span class="n">refreshtime</span><span class="o">`</span> <span class="n">string</span> <span class="k">COMMENT</span> <span class="s1">&#39;from deserializer&#39;</span><span class="p">,</span> 
+  <span class="o">`</span><span class="n">skipinterval</span><span class="o">`</span> <span class="nb">int</span> <span class="k">COMMENT</span> <span class="s1">&#39;from deserializer&#39;</span><span class="p">,</span> 
+  <span class="o">`</span><span class="n">clickdetail</span><span class="o">`</span> <span class="nb">int</span> <span class="k">COMMENT</span> <span class="s1">&#39;from deserializer&#39;</span><span class="p">,</span> 
+  <span class="o">`</span><span class="n">videoquitinterval</span><span class="o">`</span> <span class="n">string</span> <span class="k">COMMENT</span> <span class="s1">&#39;from deserializer&#39;</span><span class="p">)</span>
+<span class="n">PARTITIONED</span> <span class="k">BY</span> <span class="p">(</span> 
+  <span class="o">`</span><span class="k">day</span><span class="o">`</span> <span class="n">string</span><span class="p">)</span>
+<span class="n">CLUSTERED</span> <span class="k">BY</span> <span class="p">(</span> 
+  <span class="n">adid</span><span class="p">)</span> 
+<span class="n">SORTED</span> <span class="k">BY</span> <span class="p">(</span> 
+  <span class="n">flightid</span> <span class="k">ASC</span><span class="p">)</span> 
+<span class="k">INTO</span> <span class="mi">32</span> <span class="n">BUCKETS</span>
+<span class="k">ROW</span> <span class="n">FORMAT</span> <span class="n">SERDE</span> 
+  <span class="s1">&#39;org.openx.data.jsonserde.JsonSerDe&#39;</span> 
+<span class="n">STORED</span> <span class="k">AS</span> <span class="n">INPUTFORMAT</span> 
+  <span class="s1">&#39;com.hadoop.mapred.DeprecatedLzoTextInputFormat&#39;</span> 
+<span class="n">OUTPUTFORMAT</span> 
+  <span class="s1">&#39;org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat&#39;</span>
+<span class="k">LOCATION</span>
+  <span class="s1">&#39;hdfs://hz-cluster2/user/mad/hive/warehouse/adstat.db/mobile_day_adlog&#39;</span>
+<span class="n">TBLPROPERTIES</span> <span class="p">(</span>
+  <span class="s1">&#39;last_modified_by&#39;</span><span class="o">=</span><span class="s1">&#39;mad&#39;</span><span class="p">,</span> 
+  <span class="s1">&#39;last_modified_time&#39;</span><span class="o">=</span><span class="s1">&#39;1467194164&#39;</span><span class="p">,</span> 
+  <span class="s1">&#39;transient_lastDdlTime&#39;</span><span class="o">=</span><span class="s1">&#39;1467194164&#39;</span><span class="p">)</span>
+</pre></div>
+
+
 <h4 id="dau">各应用分平台日活跃用户(DAU)</h4>
 <ol>
 <li>tb_dau</li>
@@ -435,6 +569,85 @@
 </pre></div>
 
 
+<h4 id="_6">新闻客户端头条第一条信息流分广告位分地域刷新数</h4>
+<ol>
+<li>tb_headline_refresh_num</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>day</th>
+<th>flightid</th>
+<th>province</th>
+<th>city</th>
+<th>num</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2016-06-01</td>
+<td>111</td>
+<td>四川</td>
+<td>乐山</td>
+<td>88888888</td>
+</tr>
+</tbody>
+</table>
+<div class="hlcode"><pre><span class="k">select</span> <span class="s1">&#39;2016-07-01&#39;</span> <span class="k">as</span> <span class="k">day</span><span class="p">,</span><span class="k">cast</span><span class="p">(</span><span class="n">flightid</span> <span class="k">as</span> <span class="nb">int</span><span class="p">),</span><span class="n">province</span><span class="p">,</span><span class="n">city</span><span class="p">,</span><span class="k">count</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="k">as</span> <span class="n">num</span> <span class="k">from</span> <span class="p">(</span><span class="k">select</span> <span class="k">day</span><span class="p">,</span><span class="n">deviceid</span><span class="p">,</span><span class="n">flightid</span><span class="p">,</span><span class="n">province</span><span class="p">,</span><span class="n">city</span><span class="p">,</span><span class="n">refreshtime</span> <span class="k">from</span> <span class="n">mobile_day_adlog</span> <span class="k">where</span> <span class="k">day</span><span class="o">=</span><span class="s1">&#39;2016-07-01&#39;</span> <span class="k">and</span> <span class="n">flightid</span> <span class="k">in</span> <span class="p">(</span><span class="s1">&#39;693&#39;</span><span class="p">,</span><span class="s1">&#39;694&#39;</span><span class="p">)</span> <span class="k">group</span> <span class="k">by</span> <span class="k">day</span><span class="p">,</span><span class="n">deviceid</span><span class="p">,</span><span class="n">flightid</span><span class="p">,</span><span class="n">province</span><span class="p">,</span><span class="n">city</span><span class="p">,</span><span class="n">refreshtime</span><span class="p">)</span> <span class="n">ad</span> <span class="k">group</span> <span class="k">by</span> <span class="k">day</span><span class="p">,</span><span class="n">flightid</span><span class="p">,</span><span class="n">province</span><span class="p">,</span><span class="n">city</span> <span class="k">having</span> <span class="n">num</span><span class="o">&gt;</span><span class="mi">5</span><span class="p">;</span>
+</pre></div>
+
+
+<div class="hlcode"><pre><span class="k">CREATE</span> <span class="k">TABLE</span> <span class="o">`</span><span class="n">tb_headline_refresh_num</span><span class="o">`</span> <span class="p">(</span>
+  <span class="o">`</span><span class="k">day</span><span class="o">`</span> <span class="nb">date</span> <span class="k">DEFAULT</span> <span class="k">NULL</span><span class="p">,</span>
+  <span class="o">`</span><span class="n">flightid</span><span class="o">`</span> <span class="nb">int</span><span class="p">(</span><span class="mi">11</span><span class="p">)</span> <span class="k">DEFAULT</span> <span class="k">NULL</span><span class="p">,</span>
+  <span class="o">`</span><span class="n">province</span><span class="o">`</span> <span class="nb">varchar</span><span class="p">(</span><span class="mi">50</span><span class="p">)</span> <span class="k">DEFAULT</span> <span class="k">NULL</span><span class="p">,</span>
+  <span class="o">`</span><span class="n">city</span><span class="o">`</span> <span class="nb">varchar</span><span class="p">(</span><span class="mi">50</span><span class="p">)</span> <span class="k">DEFAULT</span> <span class="k">NULL</span><span class="p">,</span>
+  <span class="o">`</span><span class="n">num</span><span class="o">`</span> <span class="nb">int</span><span class="p">(</span><span class="mi">11</span><span class="p">)</span> <span class="k">DEFAULT</span> <span class="k">NULL</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<h4 id="_7">新闻客户端头条分广告位分地域曝光点击数</h4>
+<ol>
+<li>tb_headline_stat_by_loc</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>day</th>
+<th>flightid</th>
+<th>province</th>
+<th>city</th>
+<th>exp</th>
+<th>clc</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2016-06-01</td>
+<td>111</td>
+<td>四川</td>
+<td>乐山</td>
+<td>88888888</td>
+<td>88888888</td>
+</tr>
+</tbody>
+</table>
+<div class="hlcode"><pre><span class="k">select</span> <span class="s1">&#39;2016-07-01&#39;</span> <span class="k">as</span> <span class="k">day</span><span class="p">,</span><span class="n">ads</span><span class="p">.</span><span class="n">space_id</span> <span class="k">as</span> <span class="n">flightid</span><span class="p">,</span><span class="n">province</span><span class="p">,</span><span class="n">city</span><span class="p">,</span><span class="k">sum</span><span class="p">(</span><span class="k">show</span><span class="p">)</span> <span class="k">as</span> <span class="n">exp</span><span class="p">,</span><span class="k">sum</span><span class="p">(</span><span class="n">click</span><span class="p">)</span> <span class="k">as</span> <span class="n">clc</span> <span class="k">from</span> <span class="n">mobile_ad_space</span> <span class="n">ads</span> <span class="k">inner</span> <span class="k">join</span> <span class="p">(</span><span class="k">select</span> <span class="k">day</span><span class="p">,</span><span class="n">flightid</span><span class="p">,</span><span class="n">province</span><span class="p">,</span><span class="n">city</span><span class="p">,</span><span class="k">show</span><span class="p">,</span><span class="n">click</span> <span class="k">from</span> <span class="n">mobile_day_adlog</span> <span class="k">where</span> <span class="k">day</span><span class="o">=</span><span class="s1">&#39;2016-07-01&#39;</span><span class="p">)</span> <span class="n">ad</span> <span class="k">on</span> <span class="k">cast</span><span class="p">(</span><span class="n">ads</span><span class="p">.</span><span class="n">space_id</span> <span class="k">as</span> <span class="n">string</span><span class="p">)</span><span class="o">=</span><span class="n">ad</span><span class="p">.</span><span class="n">flightid</span> <span class="k">and</span> <span class="n">ads</span><span class="p">.</span><span class="n">category</span> <span class="k">in</span> <span class="p">(</span><span class="s1">&#39;T1348647853363&#39;</span><span class="p">,</span><span class="s1">&#39;T1348647909107&#39;</span><span class="p">)</span>  <span class="k">group</span> <span class="k">by</span> <span class="k">day</span><span class="p">,</span><span class="n">ads</span><span class="p">.</span><span class="n">space_id</span><span class="p">,</span><span class="n">province</span><span class="p">,</span><span class="n">city</span> <span class="k">having</span> <span class="n">exp</span><span class="o">&gt;</span><span class="mi">5</span><span class="p">;</span>
+</pre></div>
+
+
+<div class="hlcode"><pre><span class="k">CREATE</span> <span class="k">TABLE</span> <span class="o">`</span><span class="n">tb_headline_stat_by_loc</span><span class="o">`</span> <span class="p">(</span>
+  <span class="o">`</span><span class="k">day</span><span class="o">`</span> <span class="nb">date</span> <span class="k">DEFAULT</span> <span class="k">NULL</span><span class="p">,</span>
+  <span class="o">`</span><span class="n">flightid</span><span class="o">`</span> <span class="nb">int</span><span class="p">(</span><span class="mi">11</span><span class="p">)</span> <span class="k">DEFAULT</span> <span class="k">NULL</span><span class="p">,</span>
+  <span class="o">`</span><span class="n">province</span><span class="o">`</span> <span class="nb">varchar</span><span class="p">(</span><span class="mi">50</span><span class="p">)</span> <span class="k">DEFAULT</span> <span class="k">NULL</span><span class="p">,</span>
+  <span class="o">`</span><span class="n">city</span><span class="o">`</span> <span class="nb">varchar</span><span class="p">(</span><span class="mi">50</span><span class="p">)</span> <span class="k">DEFAULT</span> <span class="k">NULL</span><span class="p">,</span>
+  <span class="o">`</span><span class="n">exp</span><span class="o">`</span> <span class="nb">int</span><span class="p">(</span><span class="mi">11</span><span class="p">)</span> <span class="k">DEFAULT</span> <span class="k">NULL</span><span class="p">,</span>
+  <span class="o">`</span><span class="n">clc</span><span class="o">`</span> <span class="nb">int</span><span class="p">(</span><span class="mi">11</span><span class="p">)</span> <span class="k">DEFAULT</span> <span class="k">NULL</span>
+<span class="p">)</span>
+</pre></div>
+
+
 <h4 id="settingleft">新闻客户端启动(setting)、左滑(left)、封面故事</h4>
 <ol>
 <li>tb_tag_by_day</li>
@@ -477,7 +690,7 @@
 </pre></div>
 
 
-<h4 id="_6"><strong><em>文章页图文用户真正看到的比例（未做）</em></strong></h4>
+<h4 id="_8"><strong><em>文章页图文用户真正看到的比例（未做）</em></strong></h4>
 <ol>
 <li>如何识别哪些广告位是文章页图文的广告位</li>
 </ol>
@@ -520,7 +733,7 @@
       <span>
         <p>Copyright © 2016 Guosichuan.
         Powered by <a href="http://simiki.org/" target="_blank">Simiki</a>.</p>
-        <p>Site Generated 2016-07-10 10:32:13</p>
+        <p>Site Generated 2016-07-13 22:12:28</p>
       </span>
     </div>
   </body>
