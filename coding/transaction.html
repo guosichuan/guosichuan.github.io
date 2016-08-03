@@ -1,0 +1,245 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <link rel="Stylesheet" type="text/css" href="/static/css/style.css">
+    <link rel="Stylesheet" type="text/css" href="/static/css/tango.css">
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="alternate" type="application/atom+xml" href="atom.xml" title="Atom feed">
+    <title>Transaction事务 - Wiki Guosichuan</title>
+    <meta name="keywords" content="simiki, wiki, python, simple"/>
+    <meta name="description" content="Simiki is a simple static site generator for wiki."/>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  </head>
+
+  <body>
+    <div id="container">
+      
+<div id="header">
+  <div class="post-nav"><a href="/">Home</a>&nbsp;&#187;&nbsp;<a href="/#coding">coding</a>&nbsp;&#187;&nbsp;Transaction事务
+    <span class="updated">Updated&nbsp;
+      2016-08-03 23:21
+    </span></div>
+</div>
+<div class="clearfix"></div>
+
+<div class="page_title">Transaction事务</div>
+
+  <h1 id="transaction">Transaction事务</h1>
+<p>@(oracle)[simiki,transaction]</p>
+<div class="toc"><span class="toctitle">Table of Contents</span><ul>
+<li><a href="#transaction">Transaction事务</a><ul>
+<li><a href="#acid">事务的ACID特性</a><ul>
+<li><a href="#atomicity">原子性（Atomicity）</a></li>
+<li><a href="#consistency">一致性（Consistency）</a></li>
+<li><a href="#isolation">隔离性（Isolation）</a><ul>
+<li><a href="#_1">事务的隔离级别</a></li>
+<li><a href="#_2">隔离级别解决的问题</a></li>
+<li><a href="#_3">二者关系</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#spring">Spring事务注解的使用</a><ul>
+<li><a href="#_4">事物传播行为介绍</a></li>
+<li><a href="#_5">事物超时设置</a></li>
+<li><a href="#_6">事务隔离级别</a></li>
+<li><a href="#_7">常用参数说明</a></li>
+<li><a href="#_8">注意</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<h2 id="acid">事务的ACID特性</h2>
+<h3 id="atomicity">原子性（Atomicity）</h3>
+<p>一个事务包含多个操作，这些操作要么全部执行，要么全都不执行。</p>
+<h3 id="consistency">一致性（Consistency）</h3>
+<p>一致性是指事务使得系统从一个一致的状态转换到另一个<strong>一致状态</strong>。</p>
+<h3 id="isolation">隔离性（Isolation）</h3>
+<p>并发事务之间<strong>互相影响的程度</strong>。</p>
+<h4 id="_1">事务的隔离级别</h4>
+<ol>
+<li>READ_UNCOMMITTED：能读到未提交的数据</li>
+<li>READ_COMMITTED：只能读到已提交的修改数据，隔离未提交的数据</li>
+<li>REPEATABLE_READ：可重复读,隔离已提交的修改数据</li>
+<li>SERIALIZABLE：序列化，隔离已提交的新增数据</li>
+</ol>
+<h4 id="_2">隔离级别解决的问题</h4>
+<ol>
+<li>Dirty Read（脏读）：事务 A 读取了事务 B <strong>未提交</strong>的数据，并在这个基础上又做了其它操作。</li>
+<li>Unrepeatable Read（不可重复读）：事务 A 读取了事务 B <strong>已提交</strong>的<strong>更改</strong>数据。</li>
+<li>Phantom Read（幻读）：事务 A 读取了事务 B 已提交的<strong>新增</strong>数据,例如做统计时，新增了一条数据。</li>
+</ol>
+<h4 id="_3">二者关系</h4>
+<table>
+<thead>
+<tr>
+<th>事务隔离级别</th>
+<th align="right">脏读</th>
+<th>不可重复读</th>
+<th>幻读</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>READ_UNCOMMITTED</td>
+<td align="right">允许</td>
+<td>允许</td>
+<td>允许</td>
+</tr>
+<tr>
+<td>READ_COMMITTED</td>
+<td align="right"><strong><em>禁止</em></strong></td>
+<td>允许</td>
+<td>允许</td>
+</tr>
+<tr>
+<td>REPEATABLE_READ</td>
+<td align="right"><strong><em>禁止</em></strong></td>
+<td><strong><em>禁止</em></strong></td>
+<td>允许</td>
+</tr>
+<tr>
+<td>SERIALIZABLE</td>
+<td align="right"><strong><em>禁止</em></strong></td>
+<td><strong><em>禁止</em></strong></td>
+<td><strong><em>禁止</em></strong></td>
+</tr>
+<tr>
+<td>###持久性（Durability）</td>
+<td align="right"></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>事务提交后，对系统的影响是<strong>永久</strong>的，数据永久地存放在磁盘中。</td>
+<td align="right"></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2 id="spring">Spring事务注解的使用</h2>
+<h3 id="_4">事物传播行为介绍</h3>
+<div class="hlcode"><pre><span class="err">@</span><span class="n">Transactional</span><span class="p">(</span><span class="n">propagation</span><span class="o">=</span><span class="n">Propagation</span><span class="p">.</span><span class="n">REQUIRED</span><span class="p">)</span>
+</pre></div>
+
+
+<p>如果有事务, 那么加入事务, 没有的话新建一个(默认情况下)</p>
+<div class="hlcode"><pre><span class="err">@</span><span class="n">Transactional</span><span class="p">(</span><span class="n">propagation</span><span class="o">=</span><span class="n">Propagation</span><span class="p">.</span><span class="n">NOT_SUPPORTED</span><span class="p">)</span>
+</pre></div>
+
+
+<p>容器不为这个方法开启事务</p>
+<div class="hlcode"><pre><span class="err">@</span><span class="n">Transactional</span><span class="p">(</span><span class="n">propagation</span><span class="o">=</span><span class="n">Propagation</span><span class="p">.</span><span class="n">REQUIRES_NEW</span><span class="p">)</span>
+</pre></div>
+
+
+<p>不管是否存在事务,都创建一个新的事务,原来的挂起,新的执行完毕,继续执行老的事务</p>
+<div class="hlcode"><pre><span class="err">@</span><span class="n">Transactional</span><span class="p">(</span><span class="n">propagation</span><span class="o">=</span><span class="n">Propagation</span><span class="p">.</span><span class="n">MANDATORY</span><span class="p">)</span>
+</pre></div>
+
+
+<p>必须在一个已有的事务中执行,否则抛出异常</p>
+<div class="hlcode"><pre><span class="err">@</span><span class="n">Transactional</span><span class="p">(</span><span class="n">propagation</span><span class="o">=</span><span class="n">Propagation</span><span class="p">.</span><span class="n">NEVER</span><span class="p">)</span>
+</pre></div>
+
+
+<p>必须在一个没有的事务中执行,否则抛出异常(与Propagation.MANDATORY相反)</p>
+<div class="hlcode"><pre><span class="err">@</span><span class="n">Transactional</span><span class="p">(</span><span class="n">propagation</span><span class="o">=</span><span class="n">Propagation</span><span class="p">.</span><span class="n">SUPPORTS</span><span class="p">)</span>
+</pre></div>
+
+
+<p>如果其他bean调用这个方法,在其他bean中声明事务,那就用事务.如果其他bean没有声明事务,那就不用事务.</p>
+<div class="hlcode"><pre><span class="err">@</span><span class="n">Transactional</span><span class="p">(</span><span class="n">propagation</span><span class="o">=</span><span class="n">Propagation</span><span class="p">.</span><span class="n">NESTED</span><span class="p">)</span>
+</pre></div>
+
+
+<p>如果没有，就新建一个事务；如果有，就在当前事务中嵌套其他事务。这就是 PROPAGATION_NESTED，也就是传说中的“嵌套事务”了，所嵌套的子事务与主事务之间是有关联的（当主事务提交或回滚，子事务也会提交或回滚。</p>
+<h3 id="_5">事物超时设置</h3>
+<div class="hlcode"><pre><span class="err">@</span><span class="n">Transactional</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span> <span class="c1">//默认是30秒</span>
+</pre></div>
+
+
+<h3 id="_6">事务隔离级别</h3>
+<div class="hlcode"><pre><span class="err">@</span><span class="n">Transactional</span><span class="p">(</span><span class="n">isolation</span> <span class="o">=</span> <span class="n">Isolation</span><span class="p">.</span><span class="n">READ_UNCOMMITTED</span><span class="p">)</span>
+</pre></div>
+
+
+<p>读取未提交数据(会出现脏读, 不可重复读) 基本不使用</p>
+<div class="hlcode"><pre><span class="err">@</span><span class="n">Transactional</span><span class="p">(</span><span class="n">isolation</span> <span class="o">=</span> <span class="n">Isolation</span><span class="p">.</span><span class="n">READ_COMMITTED</span><span class="p">)</span>
+</pre></div>
+
+
+<p>读取已提交数据(会出现不可重复读和幻读)</p>
+<div class="hlcode"><pre><span class="err">@</span><span class="n">Transactional</span><span class="p">(</span><span class="n">isolation</span> <span class="o">=</span> <span class="n">Isolation</span><span class="p">.</span><span class="n">REPEATABLE_READ</span><span class="p">)</span>
+</pre></div>
+
+
+<p>可重复读(会出现幻读)</p>
+<div class="hlcode"><pre><span class="err">@</span><span class="n">Transactional</span><span class="p">(</span><span class="n">isolation</span> <span class="o">=</span> <span class="n">Isolation</span><span class="p">.</span><span class="n">SERIALIZABLE</span><span class="p">)</span>
+</pre></div>
+
+
+<p>序列化</p>
+<h3 id="_7">常用参数说明</h3>
+<table>
+<thead>
+<tr>
+<th>参 数 名 称</th>
+<th>功 能 描 述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>readOnly</td>
+<td>该属性用于设置当前事务是否为只读事务，设置为true表示只读，false则表示可读写，默认值为false。例如：@Transactional(readOnly=true)</td>
+</tr>
+<tr>
+<td>rollbackFor</td>
+<td Exception.class="Exception.class" RuntimeException.class_="RuntimeException.class,">该属性用于设置需要进行回滚的异常类数组，当方法中抛出指定异常数组中的异常时，则进行事务回滚。例如：指定单一异常类：@Transactional(rollbackFor=RuntimeException.class)指定多个异常类：@Transactional(rollbackFor=</td>
+</tr>
+<tr>
+<td>rollbackForClassName</td>
+<td _RuntimeException_Exception_="&quot;RuntimeException&quot;,&quot;Exception&quot;">该属性用于设置需要进行回滚的异常类名称数组，当方法中抛出指定异常名称数组中的异常时，则进行事务回滚。例如：指定单一异常类名称：@Transactional(rollbackForClassName="RuntimeException")指定多个异常类名称：@Transactional(rollbackForClassName=</td>
+</tr>
+<tr>
+<td>noRollbackFor</td>
+<td Exception.class="Exception.class" RuntimeException.class_="RuntimeException.class,">该属性用于设置不需要进行回滚的异常类数组，当方法中抛出指定异常数组中的异常时，不进行事务回滚。例如：指定单一异常类：@Transactional(noRollbackFor=RuntimeException.class)指定多个异常类：@Transactional(noRollbackFor=</td>
+</tr>
+<tr>
+<td>noRollbackForClassName</td>
+<td _RuntimeException_Exception_="&quot;RuntimeException&quot;,&quot;Exception&quot;">该属性用于设置不需要进行回滚的异常类名称数组，当方法中抛出指定异常名称数组中的异常时，不进行事务回滚。例如：指定单一异常类名称：@Transactional(noRollbackForClassName="RuntimeException")指定多个异常类名称：@Transactional(noRollbackForClassName=</td>
+</tr>
+<tr>
+<td>propagation</td>
+<td>该属性用于设置事务的传播行为，具体取值可参考表6-7。例如：@Transactional(propagation=Propagation.NOT_SUPPORTED,readOnly=true)</td>
+</tr>
+<tr>
+<td>isolation</td>
+<td>该属性用于设置底层数据库的事务隔离级别，事务隔离级别用于处理多事务并发的情况，通常使用数据库的默认隔离级别即可，基本不需要进行设置</td>
+</tr>
+<tr>
+<td>timeout</td>
+<td>该属性用于设置事务的超时秒数，默认值为-1表示永不超时</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_8">注意</h3>
+<ol>
+<li>@Transactional 只能被应用到public方法上, 对于其它非public的方法,如果标记了@Transactional也不会报错,但方法没有事务功能。</li>
+<li>默认非检查异常会回滚UncheckedException，检查异常不会回滚CheckedException。如果要都回滚：@Transactional( rollbackFor={Exception.class,其它异常})，如果要都不回滚：@Transactional(notRollbackFor=RunTimeException.class)。（UncheckedException都是RunTimeException的子类，CheckedException都是Exception的子类）</li>
+<li>Spring团队的建议是你在具体的类（或类的方法）上使用 @Transactional 注解，而不要使用在类所要实现的任何接口上，因为注解是不能继承的。</li>
+</ol>
+    </div>
+    <div id="footer">
+      <span>
+        <p>Copyright © 2016 Guosichuan.
+        Powered by <a href="http://simiki.org/" target="_blank">Simiki</a>.</p>
+        <p>Site Generated 2016-08-03 23:25:40</p>
+      </span>
+    </div>
+  </body>
+</html>
