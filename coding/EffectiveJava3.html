@@ -1,0 +1,278 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <link rel="Stylesheet" type="text/css" href="/static/css/style.css">
+    <link rel="Stylesheet" type="text/css" href="/static/css/tango.css">
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="alternate" type="application/atom+xml" href="atom.xml" title="Atom feed">
+    <title>第三章 对于所有对象都通用的方法 - Wiki Guosichuan</title>
+    <meta name="keywords" content="simiki, wiki, python, simple"/>
+    <meta name="description" content="Simiki is a simple static site generator for wiki."/>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  </head>
+
+  <body>
+    <div id="container">
+      
+<div id="header">
+  <div class="post-nav"><a href="/">Home</a>&nbsp;&#187;&nbsp;<a href="/#coding">coding</a>&nbsp;&#187;&nbsp;第三章 对于所有对象都通用的方法
+    <span class="updated">Updated&nbsp;
+      2016-08-23 22:32
+    </span></div>
+</div>
+<div class="clearfix"></div>
+
+<div class="page_title">第三章 对于所有对象都通用的方法</div>
+
+  <h1 id="_1">对于所有对象都通用的方法</h1>
+<p>@(Java基础)[simiki]</p>
+<div class="toc"><span class="toctitle">Table of Contents</span><ul>
+<li><a href="#_1">对于所有对象都通用的方法</a><ul>
+<li><a href="#equals">覆盖equals时请遵守通用约定</a><ul>
+<li><a href="#_2">通用约定</a></li>
+<li><a href="#equals_1">实现高质量equals方法的诀窍</a></li>
+<li><a href="#_3">告诫</a></li>
+</ul>
+</li>
+<li><a href="#equalshashcode">覆盖equals时总要覆盖hashCode</a><ul>
+<li><a href="#_4">通用约定</a></li>
+<li><a href="#hashcode">实现hashCode诀窍</a></li>
+<li><a href="#_5">告诫</a></li>
+</ul>
+</li>
+<li><a href="#tostring">始终要覆盖toString</a><ul>
+<li><a href="#_6">告诫</a></li>
+</ul>
+</li>
+<li><a href="#clone">谨慎地覆盖clone</a><ul>
+<li><a href="#clone_1">最好通过静态工厂方法来代替clone功能</a></li>
+</ul>
+</li>
+<li><a href="#comparable">考虑实现Comparable接口</a><ul>
+<li><a href="#equals_2">通用约定和实现诀窍参考equals方法</a></li>
+<li><a href="#_7">优化返回方式（当心溢出）</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<h2 id="equals">覆盖equals时请遵守通用约定</h2>
+<h3 id="_2">通用约定</h3>
+<ul>
+<li><strong>自反性</strong>。对于任何非null的引用值x，x.equals(x)必须返回true。</li>
+<li><strong>对称性</strong>。对于任何非null的引用值x和y，当且仅当y.equals(x)返回true时，x.equals(y)必须返回true。</li>
+<li><strong>传递性</strong>。对于任何非null的引用值x、y和z，如果x.equals(y)返回true，并且y.equals(z)也返回true，那么x.equals(z)也必须返回true。</li>
+<li><strong>一致性</strong>。对于任何非null的引用值x和y，只要equals的比较操作在对象中所用的信息没有被修改，多次调用x.equals(y)就会一致地返回true，或者一致地返回false。</li>
+<li>对于任何非null的引用值x，x.equals(null)必须返回false。</li>
+</ul>
+<h3 id="equals_1">实现高质量equals方法的诀窍</h3>
+<ol>
+<li>使用==操作符检查“参数是否为这个对象的引用”。</li>
+<li>使用Instanceof操作符检查“参数是否为正确的类型”。</li>
+<li>把参数转换成正确类型。</li>
+<li>对于该类中的每个“关键域”，检查参数中的域是否与该对象中对应的域相匹配。<ul>
+<li>非float非double的基本类型域，使用==比较</li>
+<li>对象引用域递归调用equals方法</li>
+<li>float域用Float.compare方法，double域使用Double.compare方法（存在Float.NaN、-0.0f等特殊的值）</li>
+<li>数组域应该把以上指导原则用到每个元素上。 </li>
+</ul>
+</li>
+</ol>
+<div class="hlcode"><pre><span class="c1">// Adds a value component without violating the equals contract - Page 40</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">ColorPoint</span> <span class="o">{</span>
+    <span class="kd">private</span> <span class="kd">final</span> <span class="n">Point</span> <span class="n">point</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="kd">final</span> <span class="n">Color</span> <span class="n">color</span><span class="o">;</span><span class="c1">//复合优于继承</span>
+
+    <span class="kd">public</span> <span class="nf">ColorPoint</span><span class="o">(</span><span class="kt">int</span> <span class="n">x</span><span class="o">,</span> <span class="kt">int</span> <span class="n">y</span><span class="o">,</span> <span class="n">Color</span> <span class="n">color</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">color</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span>
+            <span class="k">throw</span> <span class="k">new</span> <span class="nf">NullPointerException</span><span class="o">();</span>
+        <span class="n">point</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Point</span><span class="o">(</span><span class="n">x</span><span class="o">,</span> <span class="n">y</span><span class="o">);</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">color</span> <span class="o">=</span> <span class="n">color</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="cm">/**</span>
+<span class="cm">     * Returns the point-view of this color point.</span>
+<span class="cm">     */</span>
+    <span class="kd">public</span> <span class="n">Point</span> <span class="nf">asPoint</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">point</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="nd">@Override</span> <span class="kd">public</span> <span class="kt">boolean</span> <span class="n">equals</span><span class="o">(</span><span class="n">Object</span> <span class="n">o</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(!(</span><span class="n">o</span> <span class="k">instanceof</span> <span class="n">ColorPoint</span><span class="o">))</span><span class="c1">//2</span>
+            <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+        <span class="n">ColorPoint</span> <span class="n">cp</span> <span class="o">=</span> <span class="o">(</span><span class="n">ColorPoint</span><span class="o">)</span> <span class="n">o</span><span class="o">;</span><span class="c1">//3</span>
+        <span class="k">return</span> <span class="n">cp</span><span class="o">.</span><span class="na">point</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="n">point</span><span class="o">)</span> <span class="o">&amp;&amp;</span> <span class="n">cp</span><span class="o">.</span><span class="na">color</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="n">color</span><span class="o">);</span><span class="c1">//4</span>
+    <span class="o">}</span>
+
+    <span class="nd">@Override</span> <span class="kd">public</span> <span class="kt">int</span> <span class="n">hashCode</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">point</span><span class="o">.</span><span class="na">hashCode</span><span class="o">()</span> <span class="o">*</span> <span class="mi">33</span> <span class="o">+</span> <span class="n">color</span><span class="o">.</span><span class="na">hashCode</span><span class="o">();</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<h3 id="_3">告诫</h3>
+<ol>
+<li>覆盖equals时总要覆盖hashCode(相等的对象必须具有相等的散列码)。</li>
+<li>不要企图让equals方法过于智能（会很麻烦）。</li>
+<li>不要将equals声明中的Object对象替换为其他的类型（参数类型不一样，没有重载）。</li>
+<li><strong>intellij idea可以自动生成equals方法</strong>。</li>
+</ol>
+<h2 id="equalshashcode">覆盖equals时总要覆盖hashCode</h2>
+<h3 id="_4">通用约定</h3>
+<ul>
+<li>对象没变，多次调用hashCode方法必须始终如一地返回同一个整数。</li>
+<li>两个对象equals方法比较相等则必须具有相等的散列码。</li>
+<li>equals比较不等，hashCode可以相等，但是这会影响散列表的性能。</li>
+</ul>
+<h3 id="hashcode">实现hashCode诀窍</h3>
+<ol>
+<li>初始化一个整形变量，为此变量赋予一个非零的常数值，比如int result = 17;</li>
+<li>
+<p>选取equals方法中用于比较的所有域，然后针对每个域的属性进行计算：
+  (1) 如果是boolean值，则计算f ? 1:0
+  (2) 如果是byte\char\short\int,则计算(int)f
+  (3) 如果是long值，则计算(int)(f ^ (f &gt;&gt;&gt; 32))
+  (4) 如果是float值，则计算Float.floatToIntBits(f)
+  (5) 如果是double值，则计算Double.doubleToLongBits(f)，然后返回的结果是long,再用规则(3)去处理long,得到int
+  (6) 如果是对象应用，如果equals方法中采取递归调用的比较方式，那么hashCode中同样采取递归调用hashCode的方式。　　否则需要为这个域计算一个范式，比如当这个域的值为null的时候，那么hashCode 值为0
+  (7) 如果是数组，那么需要为每个元素当做单独的域来处理。如果你使用的是1.5及以上版本的JDK，那么没必要自己去重新遍历一遍数组，java.util.Arrays.hashCode方法包含了8种基本类型数组和引用数组的hashCode计算，算法同上，
+　　java.util.Arrays.hashCode(long[])的具体实现:
+Arrays.hashCode(...)只会计算一维数组元素的hashCode,如果是多维数组，那么需要递归进行hashCode的计算，那么就需要使用Arrays.deepHashCode(Object[])方法。</p>
+</li>
+<li>
+<p>最后，要如同上面的代码，把每个域的散列码合并到result当中：result = 31 * result + elementHash;</p>
+</li>
+<li>测试，hashCode方法是否符合文章开头说的基本原则，这些基本原则虽然不能保证性能，但是可以保证不出错。</li>
+</ol>
+<h3 id="_5">告诫</h3>
+<ol>
+<li>计算散列码的过程中，可以把<strong>冗余域</strong>（由其它域值计算出来的）排除在外。</li>
+<li>考虑到散列码开销，和需求，可以选择创建实例时计算散列码或“延迟初始化”散列码。</li>
+<li>不要试图从散列码计算中排除一个对象的关键部分来提高性能，这可能会导致散列表性能急剧下滑。</li>
+<li><strong>intellij idea 可以按通用原则自动生成hashCode方法</strong>。</li>
+</ol>
+<div class="hlcode"><pre><span class="c1">//立即初始化</span>
+   <span class="c1">// A decent hashCode method - Page 48</span>
+ <span class="nd">@Override</span> <span class="kd">public</span> <span class="kt">int</span> <span class="n">hashCode</span><span class="o">()</span> <span class="o">{</span>
+     <span class="kt">int</span> <span class="n">result</span> <span class="o">=</span> <span class="mi">17</span><span class="o">;</span>
+     <span class="n">result</span> <span class="o">=</span> <span class="mi">31</span> <span class="o">*</span> <span class="n">result</span> <span class="o">+</span> <span class="n">areaCode</span><span class="o">;</span>
+     <span class="n">result</span> <span class="o">=</span> <span class="mi">31</span> <span class="o">*</span> <span class="n">result</span> <span class="o">+</span> <span class="n">prefix</span><span class="o">;</span>
+     <span class="n">result</span> <span class="o">=</span> <span class="mi">31</span> <span class="o">*</span> <span class="n">result</span> <span class="o">+</span> <span class="n">lineNumber</span><span class="o">;</span>
+     <span class="k">return</span> <span class="n">result</span><span class="o">;</span>
+ <span class="o">}</span>
+</pre></div>
+
+
+<div class="hlcode"><pre><span class="c1">//延迟初始化</span>
+<span class="kd">private</span> <span class="kd">volatile</span> <span class="kt">int</span> <span class="n">hashCode</span><span class="o">;</span>  <span class="c1">// (See Item 71)</span>
+
+ <span class="nd">@Override</span> <span class="kd">public</span> <span class="kt">int</span> <span class="n">hashCode</span><span class="o">()</span> <span class="o">{</span>
+     <span class="kt">int</span> <span class="n">result</span> <span class="o">=</span> <span class="n">hashCode</span><span class="o">;</span>
+     <span class="k">if</span> <span class="o">(</span><span class="n">result</span> <span class="o">==</span> <span class="mi">0</span><span class="o">)</span> <span class="o">{</span>
+         <span class="n">result</span> <span class="o">=</span> <span class="mi">17</span><span class="o">;</span>
+         <span class="n">result</span> <span class="o">=</span> <span class="mi">31</span> <span class="o">*</span> <span class="n">result</span> <span class="o">+</span> <span class="n">areaCode</span><span class="o">;</span>
+         <span class="n">result</span> <span class="o">=</span> <span class="mi">31</span> <span class="o">*</span> <span class="n">result</span> <span class="o">+</span> <span class="n">prefix</span><span class="o">;</span>
+         <span class="n">result</span> <span class="o">=</span> <span class="mi">31</span> <span class="o">*</span> <span class="n">result</span> <span class="o">+</span> <span class="n">lineNumber</span><span class="o">;</span>
+         <span class="n">hashCode</span> <span class="o">=</span> <span class="n">result</span><span class="o">;</span>
+     <span class="o">}</span>
+     <span class="k">return</span> <span class="n">result</span><span class="o">;</span>
+ <span class="o">}</span>
+</pre></div>
+
+
+<h2 id="tostring">始终要覆盖toString</h2>
+<h3 id="_6">告诫</h3>
+<ol>
+<li><strong>intellij idea 可以自动生成toString方法。</strong></li>
+<li>默认toString方法是“类名称@散列码的无符号十六进制表示法”，例如“PhoneNumber@163b91”。</li>
+</ol>
+<div class="hlcode"><pre><span class="nd">@Override</span> <span class="kd">public</span> <span class="n">String</span> <span class="n">toString</span><span class="o">()</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="n">String</span><span class="o">.</span><span class="na">format</span><span class="o">(</span><span class="s">&quot;(%03d) %03d-%04d&quot;</span><span class="o">,</span>
+                         <span class="n">areaCode</span><span class="o">,</span> <span class="n">prefix</span><span class="o">,</span> <span class="n">lineNumber</span><span class="o">);</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<h2 id="clone">谨慎地覆盖clone</h2>
+<div class="hlcode"><pre><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Stack</span> <span class="kd">implements</span> <span class="n">Cloneable</span> <span class="o">{</span>
+    <span class="kd">private</span> <span class="n">Object</span><span class="o">[]</span> <span class="n">elements</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="kt">int</span> <span class="n">size</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kt">int</span> <span class="n">DEFAULT_INITIAL_CAPACITY</span> <span class="o">=</span> <span class="mi">16</span><span class="o">;</span>
+
+    <span class="o">...</span>
+
+    <span class="nd">@Override</span> <span class="kd">public</span> <span class="n">Stack</span> <span class="n">clone</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">try</span> <span class="o">{</span>
+            <span class="n">Stack</span> <span class="n">result</span> <span class="o">=</span> <span class="o">(</span><span class="n">Stack</span><span class="o">)</span> <span class="kd">super</span><span class="o">.</span><span class="na">clone</span><span class="o">();</span>
+            <span class="n">result</span><span class="o">.</span><span class="na">elements</span> <span class="o">=</span> <span class="n">elements</span><span class="o">.</span><span class="na">clone</span><span class="o">();</span>
+            <span class="k">return</span> <span class="n">result</span><span class="o">;</span>
+        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">CloneNotSupportedException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">throw</span> <span class="k">new</span> <span class="nf">AssertionError</span><span class="o">();</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+
+    <span class="o">...</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<h3 id="clone_1">最好通过静态工厂方法来代替clone功能</h3>
+<div class="hlcode"><pre><span class="kd">public</span> <span class="kd">static</span> <span class="n">Yum</span> <span class="nf">newInstance</span><span class="o">(</span><span class="n">Yum</span> <span class="n">yum</span><span class="o">)</span>
+</pre></div>
+
+
+<h2 id="comparable">考虑实现Comparable接口</h2>
+<h3 id="equals_2">通用约定和实现诀窍参考equals方法</h3>
+<div class="hlcode"><pre>  <span class="kd">public</span> <span class="kt">int</span> <span class="nf">compareTo</span><span class="o">(</span><span class="n">PhoneNumber</span> <span class="n">pn</span><span class="o">)</span> <span class="o">{</span>
+     <span class="c1">// Compare area codes</span>
+     <span class="k">if</span> <span class="o">(</span><span class="n">areaCode</span> <span class="o">&lt;</span> <span class="n">pn</span><span class="o">.</span><span class="na">areaCode</span><span class="o">)</span>
+         <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="o">;</span>
+     <span class="k">if</span> <span class="o">(</span><span class="n">areaCode</span> <span class="o">&gt;</span> <span class="n">pn</span><span class="o">.</span><span class="na">areaCode</span><span class="o">)</span>
+         <span class="k">return</span>  <span class="mi">1</span><span class="o">;</span>
+
+     <span class="c1">// Area codes are equal, compare prefixes</span>
+     <span class="k">if</span> <span class="o">(</span><span class="n">prefix</span> <span class="o">&lt;</span> <span class="n">pn</span><span class="o">.</span><span class="na">prefix</span><span class="o">)</span>
+         <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="o">;</span>
+     <span class="k">if</span> <span class="o">(</span><span class="n">prefix</span> <span class="o">&gt;</span> <span class="n">pn</span><span class="o">.</span><span class="na">prefix</span><span class="o">)</span>
+         <span class="k">return</span>  <span class="mi">1</span><span class="o">;</span>
+
+     <span class="c1">// Area codes and prefixes are equal, compare line numbers</span>
+     <span class="k">if</span> <span class="o">(</span><span class="n">lineNumber</span> <span class="o">&lt;</span> <span class="n">pn</span><span class="o">.</span><span class="na">lineNumber</span><span class="o">)</span>
+         <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="o">;</span>
+     <span class="k">if</span> <span class="o">(</span><span class="n">lineNumber</span> <span class="o">&gt;</span> <span class="n">pn</span><span class="o">.</span><span class="na">lineNumber</span><span class="o">)</span>
+         <span class="k">return</span>  <span class="mi">1</span><span class="o">;</span>
+
+     <span class="k">return</span> <span class="mi">0</span><span class="o">;</span>  <span class="c1">// All fields are equal</span>
+ <span class="o">}</span>
+</pre></div>
+
+
+<h3 id="_7">优化返回方式（当心溢出）</h3>
+<div class="hlcode"><pre><span class="kd">public</span> <span class="kt">int</span> <span class="nf">compareTo</span><span class="o">(</span><span class="n">PhoneNumber</span> <span class="n">pn</span><span class="o">)</span> <span class="o">{</span>
+        <span class="c1">// Compare area codes</span>
+        <span class="kt">int</span> <span class="n">areaCodeDiff</span> <span class="o">=</span> <span class="n">areaCode</span> <span class="o">-</span> <span class="n">pn</span><span class="o">.</span><span class="na">areaCode</span><span class="o">;</span><span class="c1">//当心溢出</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">areaCodeDiff</span> <span class="o">!=</span> <span class="mi">0</span><span class="o">)</span>
+            <span class="k">return</span> <span class="n">areaCodeDiff</span><span class="o">;</span>
+
+        <span class="c1">// Area codes are equal, compare prefixes</span>
+        <span class="kt">int</span> <span class="n">prefixDiff</span> <span class="o">=</span> <span class="n">prefix</span> <span class="o">-</span> <span class="n">pn</span><span class="o">.</span><span class="na">prefix</span><span class="o">;</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">prefixDiff</span> <span class="o">!=</span> <span class="mi">0</span><span class="o">)</span>
+            <span class="k">return</span> <span class="n">prefixDiff</span><span class="o">;</span>
+
+        <span class="c1">// Area codes and prefixes are equal, compare line numbers</span>
+        <span class="k">return</span> <span class="n">lineNumber</span> <span class="o">-</span> <span class="n">pn</span><span class="o">.</span><span class="na">lineNumber</span><span class="o">;</span>
+    <span class="o">}</span>
+</pre></div>
+    </div>
+    <div id="footer">
+      <span>
+        <p>Copyright © 2016 Guosichuan.
+        Powered by <a href="http://simiki.org/" target="_blank">Simiki</a>.</p>
+        <p>Site Generated 2016-08-24 00:11:30</p>
+      </span>
+    </div>
+  </body>
+</html>
