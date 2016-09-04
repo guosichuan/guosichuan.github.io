@@ -1,0 +1,539 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <link rel="Stylesheet" type="text/css" href="/static/css/style.css">
+    <link rel="Stylesheet" type="text/css" href="/static/css/tango.css">
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="alternate" type="application/atom+xml" href="atom.xml" title="Atom feed">
+    <title>第五章 泛型 - Wiki Guosichuan</title>
+    <meta name="keywords" content="simiki, wiki, python, simple"/>
+    <meta name="description" content="Simiki is a simple static site generator for wiki."/>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  </head>
+
+  <body>
+    <div id="container">
+      
+<div id="header">
+  <div class="post-nav"><a href="/">Home</a>&nbsp;&#187;&nbsp;<a href="/#coding">coding</a>&nbsp;&#187;&nbsp;第五章 泛型
+    <span class="updated">Updated&nbsp;
+      2016-08-31 22:04
+    </span></div>
+</div>
+<div class="clearfix"></div>
+
+<div class="page_title">第五章 泛型</div>
+
+  <h1 id="_1">泛型</h1>
+<p>@(Java基础)[simiki]</p>
+<div class="toc"><span class="toctitle">Table of Contents</span><ul>
+<li><a href="#_1">泛型</a><ul>
+<li><a href="#_2">请不要使用原生态类型</a><ul>
+<li><a href="#_3">泛型的作用</a></li>
+<li><a href="#_4">用通配符类型替代原生态类型</a></li>
+</ul>
+</li>
+<li><a href="#_5">消除非受检警告</a></li>
+<li><a href="#_6">列表泛型优先于数组</a></li>
+<li><a href="#_7">使用泛型</a></li>
+<li><a href="#_8">静态工具方法优先考虑泛型方法</a></li>
+<li><a href="#api">利用有限制通配符来提升API的灵活性</a></li>
+<li><a href="#_9">优先考虑类型安全的异构容器。</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<hr />
+<h2 id="_2">请不要使用原生态类型</h2>
+<ul>
+<li>泛型类和接口统称为<strong>泛型</strong></li>
+<li>每个泛型都定义一个<strong>原生态类型</strong>，为的是兼容旧代码。</li>
+</ul>
+<h3 id="_3">泛型的作用</h3>
+<ol>
+<li>编译器在编译时告知是否插入了<strong>类型错误</strong>的对象。</li>
+<li>编译器自动为你的插入和读取时进行<strong>隐式转换</strong>。</li>
+</ol>
+<h3 id="_4">用通配符类型替代原生态类型</h3>
+<ul>
+<li>List这样的原生态类型会<strong>逃避泛型检查</strong>，非常危险。例如下面代码报错。</li>
+</ul>
+<div class="hlcode"><pre>   <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">List</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">strings</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;();</span>
+        <span class="n">unsafeAdd</span><span class="o">(</span><span class="n">strings</span><span class="o">,</span> <span class="k">new</span> <span class="n">Integer</span><span class="o">(</span><span class="mi">42</span><span class="o">));</span>
+        <span class="n">String</span> <span class="n">s</span> <span class="o">=</span> <span class="n">strings</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="mi">0</span><span class="o">);</span> <span class="c1">// Compiler-generated cast</span>
+    <span class="o">}</span>
+
+    <span class="kd">private</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">unsafeAdd</span><span class="o">(</span><span class="n">List</span> <span class="n">list</span><span class="o">,</span> <span class="n">Object</span> <span class="n">o</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">list</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">o</span><span class="o">);</span>
+    <span class="o">}</span>
+</pre></div>
+
+
+<ul>
+<li>List&lt; Object&gt;可以表示<strong>包含任何对象类型</strong>的一个集合，但是int,等基本类型不可以用作泛型的类型参数，不过可以使用基本包装类型List&lt; Integer&gt;。</li>
+<li>List&lt;?&gt;称作<strong>无限制的通配符类型</strong>，表示只能包含<strong>某一种未知对象类型</strong>的一个集合。</li>
+</ul>
+<div class="hlcode"><pre><span class="c1">// Use of raw type for unknown element type - don&#39;t do this! - Page 113</span>
+<span class="kd">static</span> <span class="kt">int</span> <span class="nf">rawNumElementsInCommon</span><span class="o">(</span><span class="n">Set</span> <span class="n">s1</span><span class="o">,</span> <span class="n">Set</span> <span class="n">s2</span><span class="o">)</span> <span class="o">{</span>
+    <span class="kt">int</span> <span class="n">result</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+    <span class="k">for</span> <span class="o">(</span><span class="n">Object</span> <span class="n">o1</span> <span class="o">:</span> <span class="n">s1</span><span class="o">)</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">s2</span><span class="o">.</span><span class="na">contains</span><span class="o">(</span><span class="n">o1</span><span class="o">))</span>
+            <span class="n">result</span><span class="o">++;</span>
+    <span class="k">return</span> <span class="n">result</span><span class="o">;</span>
+<span class="o">}</span>
+
+<span class="c1">// Unbounded wildcard type - typesafe and flexible - Page 113</span>
+<span class="kd">static</span> <span class="kt">int</span> <span class="nf">numElementsInCommon</span><span class="o">(</span><span class="n">Set</span><span class="o">&lt;?&gt;</span> <span class="n">s1</span><span class="o">,</span> <span class="n">Set</span><span class="o">&lt;?&gt;</span> <span class="n">s2</span><span class="o">)</span> <span class="o">{</span>
+    <span class="kt">int</span> <span class="n">result</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+    <span class="k">for</span> <span class="o">(</span><span class="n">Object</span> <span class="n">o1</span> <span class="o">:</span> <span class="n">s1</span><span class="o">)</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">s2</span><span class="o">.</span><span class="na">contains</span><span class="o">(</span><span class="n">o1</span><span class="o">))</span>
+            <span class="n">result</span><span class="o">++;</span>
+    <span class="k">return</span> <span class="n">result</span><span class="o">;</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<ul>
+<li>泛型信息在运行时被擦除，因此禁止在<strong>参数化类型</strong>上使用instanceof，并且在检查通过后立刻转换成受检查的<strong>通配符类型</strong>Set&lt;?&gt;。</li>
+</ul>
+<div class="hlcode"><pre><span class="k">if</span><span class="err">（</span><span class="n">o</span> <span class="k">instanceof</span> <span class="n">Set</span><span class="err">）</span><span class="o">{</span>
+    <span class="n">Set</span><span class="o">&lt;?&gt;</span> <span class="n">m</span> <span class="o">=</span> <span class="o">(</span><span class="n">Set</span><span class="o">&lt;?&gt;)</span> <span class="n">o</span><span class="o">;</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<hr />
+<h2 id="_5">消除非受检警告</h2>
+<ul>
+<li>泛型编程时会遇到许多编译器警告：非受检强制转化警告，非受检方法调用警告，非受检普通数组创建警告，以及非受检转换警告。请<strong>尽量消除警告</strong>。</li>
+<li>如果无法消除警告，同时可以证明引起警告的<strong>代码是类型安全的</strong>，可以用<strong><em>@SuppressWarnings("unchecked")</em></strong>注解来禁止这条警告。</li>
+<li><strong>SuppressWarnings</strong>注解可以用在任何粒度的级别当中，应该始终在<strong>尽可能小的范围</strong>中使用<strong>SuppressWarnings</strong>注解。</li>
+<li>尽量将<strong>SuppressWarnings</strong>注解用在局部变量的声明中。如下ArrayList类中的toArray方法Arrays.copyOf句会产生警告,应改为声明<strong>不受检查的局部变量</strong>的形式。</li>
+</ul>
+<div class="hlcode"><pre><span class="kd">public</span> <span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">T</span><span class="o">[]</span> <span class="n">toArray</span><span class="o">(</span><span class="n">T</span><span class="o">[]</span> <span class="n">a</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">a</span><span class="o">.</span><span class="na">length</span> <span class="o">&lt;</span> <span class="n">size</span><span class="o">)</span>
+        <span class="c1">//bad code</span>
+        <span class="c1">//return (T[]) Arrays.copyOf(elementData, size, a.getClass());</span>
+        <span class="c1">//good code</span>
+        <span class="nd">@SuppressWarnings</span><span class="o">(</span><span class="s">&quot;unchecked&quot;</span><span class="o">)</span> <span class="n">T</span><span class="o">[]</span> <span class="n">result</span> <span class="o">=</span> <span class="o">(</span><span class="n">T</span><span class="o">[])</span> <span class="n">Arrays</span><span class="o">.</span><span class="na">copyOf</span><span class="o">(</span><span class="n">elementData</span><span class="o">,</span> <span class="n">size</span><span class="o">,</span> <span class="n">a</span><span class="o">.</span><span class="na">getClass</span><span class="o">());</span>
+        <span class="k">return</span> <span class="n">result</span><span class="o">;</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">arraycopy</span><span class="o">(</span><span class="n">elementData</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="n">a</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="n">size</span><span class="o">);</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">a</span><span class="o">.</span><span class="na">length</span> <span class="o">&gt;</span> <span class="n">size</span><span class="o">)</span>
+        <span class="n">a</span><span class="o">[</span><span class="n">size</span><span class="o">]</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+    <span class="k">return</span> <span class="n">a</span><span class="o">;</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<ul>
+<li>每当使用<strong>SuppressWarnings（“unchecked”）</strong>注解时，都要添加一条注释，<strong>说明为什么这么做是安全的</strong>。</li>
+</ul>
+<div class="hlcode"><pre><span class="kd">public</span> <span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">T</span><span class="o">[]</span> <span class="n">toArray</span><span class="o">(</span><span class="n">T</span><span class="o">[]</span> <span class="n">a</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">a</span><span class="o">.</span><span class="na">length</span> <span class="o">&lt;</span> <span class="n">size</span><span class="o">)</span>
+        <span class="c1">//This cast is correct because the array we&#39;re creating</span>
+        <span class="c1">//is of the same type as the one passed in, which is T[]</span>
+        <span class="nd">@SuppressWarnings</span><span class="o">(</span><span class="s">&quot;unchecked&quot;</span><span class="o">)</span> <span class="n">T</span><span class="o">[]</span> <span class="n">result</span> <span class="o">=</span> <span class="o">(</span><span class="n">T</span><span class="o">[])</span> <span class="n">Arrays</span><span class="o">.</span><span class="na">copyOf</span><span class="o">(</span><span class="n">elementData</span><span class="o">,</span> <span class="n">size</span><span class="o">,</span> <span class="n">a</span><span class="o">.</span><span class="na">getClass</span><span class="o">());</span>
+        <span class="k">return</span> <span class="n">result</span><span class="o">;</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">arraycopy</span><span class="o">(</span><span class="n">elementData</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="n">a</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="n">size</span><span class="o">);</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">a</span><span class="o">.</span><span class="na">length</span> <span class="o">&gt;</span> <span class="n">size</span><span class="o">)</span>
+        <span class="n">a</span><span class="o">[</span><span class="n">size</span><span class="o">]</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+    <span class="k">return</span> <span class="n">a</span><span class="o">;</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<hr />
+<h2 id="_6">列表泛型优先于数组</h2>
+<ul>
+<li><strong>数组是协变的而泛型是不可变的</strong>。如果Sub为Super的子类型，那么数组类型Sub[]就是Super[]的子类型。List&lt; Sub&gt;和List&lt; Super&gt;没有关系。因为协变的存在，数组的类型错误通常在运行时才报错，而泛型在<strong>编译时就能检查出问题</strong>。因此二者相比应该<strong>优先使用列表</strong>。</li>
+</ul>
+<div class="hlcode"><pre><span class="n">Object</span><span class="o">[]</span> <span class="n">objectArray</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Long</span><span class="o">[</span><span class="mi">1</span><span class="o">];</span>
+<span class="n">objectArray</span><span class="o">[</span><span class="mi">0</span><span class="o">]=</span><span class="s">&quot;I don&#39;t fit in this&quot;</span><span class="o">;</span><span class="c1">//运行时报错ArrayStoreException</span>
+
+<span class="n">List</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;</span> <span class="n">ol</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">Long</span><span class="o">&gt;();</span>
+<span class="n">ol</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="s">&quot;I don&#39;t fit in this&quot;</span><span class="o">);</span><span class="c1">//无法通过编译</span>
+</pre></div>
+
+
+<ul>
+<li><strong>数组是具体化的，泛型不可具体化</strong>。直观地说，不可具体化的类型是指其运行时表示法包含的信息比它编译时表示法包含的星系更少的类型。泛型通常因为运行时类型被擦除，因此不可具体化，但是无限制的通配符类型可以具体化，如List&lt; ?&gt;。</li>
+<li><strong>不可具体化</strong>的泛型类禁止作为数组声明的成员类型。如new List&lt; E&gt;[]不合法。因为数组的协变特性会导致泛型在编译时的类型检查被逃避，同时由于泛型类型擦除导致运行时无法对类型进行检查。</li>
+</ul>
+<hr />
+<h2 id="_7">使用泛型</h2>
+<p>请不要使用原生态类型中介绍了使用泛型的优势，但是将原生态类型改写成泛型经常会遇到问题，如<strong>不可具体化</strong>的泛型类禁止作为数组声明的成员类型。</p>
+<div class="hlcode"><pre>    <span class="c1">//原生态类型</span>
+    <span class="n">elements</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Object</span><span class="o">[</span><span class="n">DEFAULT_INITIAL_CAPACITY</span><span class="o">]</span>
+    <span class="c1">//泛型 error</span>
+    <span class="n">elements</span> <span class="o">=</span> <span class="k">new</span> <span class="n">E</span><span class="o">[</span><span class="n">DEFAULT_INITIAL_CAPACITY</span><span class="o">]</span>
+</pre></div>
+
+
+<ul>
+<li>解决方法一：创建一个Object的数组，并将它<strong>强制转换成泛型数组</strong>类型</li>
+</ul>
+<div class="hlcode"><pre><span class="c1">// Generic stack using E[] - Pages 125-127</span>
+
+<span class="kn">import</span> <span class="nn">java.util.Arrays</span><span class="o">;</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Stack</span><span class="o">&lt;</span><span class="n">E</span><span class="o">&gt;</span> <span class="o">{</span>
+    <span class="kd">private</span> <span class="n">E</span><span class="o">[]</span> <span class="n">elements</span><span class="o">;</span>
+    <span class="o">...</span>
+
+    <span class="c1">// The elements array will contain only E instances from push(E).</span>
+    <span class="c1">// This is sufficient to ensure type safety, but the runtime</span>
+    <span class="c1">// type of the array won&#39;t be E[]; it will always be Object[]!</span>
+    <span class="nd">@SuppressWarnings</span><span class="o">(</span><span class="s">&quot;unchecked&quot;</span><span class="o">)</span> 
+        <span class="kd">public</span> <span class="nf">Stack</span><span class="o">()</span> <span class="o">{</span>
+        <span class="n">elements</span> <span class="o">=</span> <span class="o">(</span><span class="n">E</span><span class="o">[])</span> <span class="k">new</span> <span class="n">Object</span><span class="o">[</span><span class="n">DEFAULT_INITIAL_CAPACITY</span><span class="o">];</span>
+    <span class="o">}</span>
+
+   <span class="o">...</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<ul>
+<li>解决方法二：将elements域的类型从E[]改为Object[],在读取元素时(pop方法中)再<strong>强制转换成泛型元素</strong></li>
+</ul>
+<div class="hlcode"><pre><span class="c1">// Generic stack using Object[] - Pages 125-127</span>
+
+<span class="kn">import</span> <span class="nn">java.util.Arrays</span><span class="o">;</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Stack</span><span class="o">&lt;</span><span class="n">E</span><span class="o">&gt;</span> <span class="o">{</span>
+    <span class="kd">private</span> <span class="n">Object</span><span class="o">[]</span> <span class="n">elements</span><span class="o">;</span>
+    <span class="o">...</span>
+    <span class="kd">public</span> <span class="nf">Stack</span><span class="o">()</span> <span class="o">{</span>
+        <span class="n">elements</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Object</span><span class="o">[</span><span class="n">DEFAULT_INITIAL_CAPACITY</span><span class="o">];</span>
+    <span class="o">}</span>
+    <span class="c1">// Appropriate suppression of unchecked warning</span>
+    <span class="kd">public</span> <span class="n">E</span> <span class="nf">pop</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">size</span><span class="o">==</span><span class="mi">0</span><span class="o">)</span>
+            <span class="k">throw</span> <span class="k">new</span> <span class="nf">EmptyStackException</span><span class="o">();</span>
+
+        <span class="c1">// push requires elements to be of type E, so cast is correct</span>
+        <span class="nd">@SuppressWarnings</span><span class="o">(</span><span class="s">&quot;unchecked&quot;</span><span class="o">)</span> <span class="n">E</span> <span class="n">result</span> <span class="o">=</span> 
+            <span class="o">(</span><span class="n">E</span><span class="o">)</span> <span class="n">elements</span><span class="o">[--</span><span class="n">size</span><span class="o">];</span>
+
+        <span class="n">elements</span><span class="o">[</span><span class="n">size</span><span class="o">]</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span> <span class="c1">// Eliminate obsolete reference</span>
+        <span class="k">return</span> <span class="n">result</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">...</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<ul>
+<li>解决方法三：如上一条建议，放弃数组，<strong>改为使用列表泛型</strong>。但是数组也有自己的优势。</li>
+<li>考虑到<strong>兼容性</strong>，Java不是生来就支持列表，因此有些泛型如ArrayList<strong>必须在数组上实现</strong>。</li>
+<li>数组<strong>性能</strong>更优。</li>
+</ul>
+<h2 id="_8">静态工具方法优先考虑泛型方法</h2>
+<p>像泛型类一样，泛型方法也同理应优先考虑。<strong>静态工具方法</strong>尤其适合于泛型化。
+- 泛型方法便于<strong>类型检查</strong>。</p>
+<div class="hlcode"><pre><span class="c1">// Generic union method and program to exercise it - pages 129 - 130</span>
+
+<span class="kn">import</span> <span class="nn">java.util.*</span><span class="o">;</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Union</span> <span class="o">{</span>
+
+    <span class="c1">// Generic method</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="o">&lt;</span><span class="n">E</span><span class="o">&gt;</span> <span class="n">Set</span><span class="o">&lt;</span><span class="n">E</span><span class="o">&gt;</span> <span class="n">union</span><span class="o">(</span><span class="n">Set</span><span class="o">&lt;</span><span class="n">E</span><span class="o">&gt;</span> <span class="n">s1</span><span class="o">,</span> <span class="n">Set</span><span class="o">&lt;</span><span class="n">E</span><span class="o">&gt;</span> <span class="n">s2</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">Set</span><span class="o">&lt;</span><span class="n">E</span><span class="o">&gt;</span> <span class="n">result</span> <span class="o">=</span> <span class="k">new</span> <span class="n">HashSet</span><span class="o">&lt;</span><span class="n">E</span><span class="o">&gt;(</span><span class="n">s1</span><span class="o">);</span>
+        <span class="n">result</span><span class="o">.</span><span class="na">addAll</span><span class="o">(</span><span class="n">s2</span><span class="o">);</span>
+        <span class="k">return</span> <span class="n">result</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="c1">// Simple program to exercise generic method</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">Set</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">guys</span> <span class="o">=</span> <span class="k">new</span> <span class="n">HashSet</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;(</span>
+            <span class="n">Arrays</span><span class="o">.</span><span class="na">asList</span><span class="o">(</span><span class="s">&quot;Tom&quot;</span><span class="o">,</span> <span class="s">&quot;Dick&quot;</span><span class="o">,</span> <span class="s">&quot;Harry&quot;</span><span class="o">));</span>
+        <span class="n">Set</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">stooges</span> <span class="o">=</span> <span class="k">new</span> <span class="n">HashSet</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;(</span>
+            <span class="n">Arrays</span><span class="o">.</span><span class="na">asList</span><span class="o">(</span><span class="s">&quot;Larry&quot;</span><span class="o">,</span> <span class="s">&quot;Moe&quot;</span><span class="o">,</span> <span class="s">&quot;Curly&quot;</span><span class="o">));</span>
+        <span class="n">Set</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">aflCio</span> <span class="o">=</span> <span class="n">union</span><span class="o">(</span><span class="n">guys</span><span class="o">,</span> <span class="n">stooges</span><span class="o">);</span><span class="c1">//帮助类型检查。</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">aflCio</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<ul>
+<li>调用泛型构造器时，要明确传递类型参数，这点有些冗余。<strong>泛型静态工厂方法</strong>可以利用类型推导更简洁地实现对<strong>泛型对象</strong>的构造。</li>
+</ul>
+<div class="hlcode"><pre><span class="c1">// Generic static factory method - Pages 130-131</span>
+
+<span class="kn">import</span> <span class="nn">java.util.*</span><span class="o">;</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">GenericStaticFactory</span> <span class="o">{</span>
+    <span class="c1">// Generic static factory method</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="o">&lt;</span><span class="n">K</span><span class="o">,</span><span class="n">V</span><span class="o">&gt;</span> <span class="n">HashMap</span><span class="o">&lt;</span><span class="n">K</span><span class="o">,</span><span class="n">V</span><span class="o">&gt;</span> <span class="n">newHashMap</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="k">new</span> <span class="n">HashMap</span><span class="o">&lt;</span><span class="n">K</span><span class="o">,</span><span class="n">V</span><span class="o">&gt;();</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="c1">// Parameterized type instance creation with static factory</span>
+        <span class="c1">//Map&lt;String, List&lt;String&gt;&gt; anagrams = new HashMap&lt;String,String&gt;();//bad</span>
+        <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;&gt;</span> <span class="n">anagrams</span> <span class="o">=</span> <span class="n">newHashMap</span><span class="o">();</span><span class="c1">//简洁</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<p>-<strong>泛型单例工厂模式</strong>,创建<strong>不可变</strong>但又<strong>适合于许多不同类型</strong>的对象。这种模式最常用于<strong>函数对象</strong>。</p>
+<div class="hlcode"><pre><span class="c1">// Generic singleton factory method - Pages 131-132</span>
+
+<span class="kn">import</span> <span class="nn">java.util.*</span><span class="o">;</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">GenericSingletonFactory</span> <span class="o">{</span>
+    <span class="c1">// Generic singleton factory pattern</span>
+    <span class="kd">private</span> <span class="kd">static</span> <span class="n">UnaryFunction</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;</span> <span class="n">IDENTITY_FUNCTION</span> <span class="o">=</span>
+        <span class="k">new</span> <span class="n">UnaryFunction</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;()</span> <span class="o">{</span>
+        <span class="kd">public</span> <span class="n">Object</span> <span class="nf">apply</span><span class="o">(</span><span class="n">Object</span> <span class="n">arg</span><span class="o">)</span> <span class="o">{</span> <span class="k">return</span> <span class="n">arg</span><span class="o">;</span> <span class="o">}</span>
+    <span class="o">};</span><span class="c1">//成员使用Object泛型</span>
+
+    <span class="c1">// IDENTITY_FUNCTION is stateless and its type parameter is</span>
+    <span class="c1">// unbounded so it&#39;s safe to share one instance across all types.</span>
+    <span class="nd">@SuppressWarnings</span><span class="o">(</span><span class="s">&quot;unchecked&quot;</span><span class="o">)</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">UnaryFunction</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">identityFunction</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="o">(</span><span class="n">UnaryFunction</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;)</span> <span class="n">IDENTITY_FUNCTION</span><span class="o">;</span><span class="c1">//使用时强制转换成类型参数指定类型</span>
+    <span class="o">}</span>
+
+     <span class="c1">// Sample program to exercise generic singleton</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">String</span><span class="o">[]</span> <span class="n">strings</span> <span class="o">=</span> <span class="o">{</span> <span class="s">&quot;jute&quot;</span><span class="o">,</span> <span class="s">&quot;hemp&quot;</span><span class="o">,</span> <span class="s">&quot;nylon&quot;</span> <span class="o">};</span>
+        <span class="n">UnaryFunction</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">sameString</span> <span class="o">=</span> <span class="n">identityFunction</span><span class="o">();</span>
+        <span class="k">for</span> <span class="o">(</span><span class="n">String</span> <span class="n">s</span> <span class="o">:</span> <span class="n">strings</span><span class="o">)</span>
+            <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">sameString</span><span class="o">.</span><span class="na">apply</span><span class="o">(</span><span class="n">s</span><span class="o">));</span>
+
+        <span class="n">Number</span><span class="o">[]</span> <span class="n">numbers</span> <span class="o">=</span> <span class="o">{</span> <span class="mi">1</span><span class="o">,</span> <span class="mf">2.0</span><span class="o">,</span> <span class="mi">3L</span> <span class="o">};</span>
+        <span class="n">UnaryFunction</span><span class="o">&lt;</span><span class="n">Number</span><span class="o">&gt;</span> <span class="n">sameNumber</span> <span class="o">=</span> <span class="n">identityFunction</span><span class="o">();</span>
+        <span class="k">for</span> <span class="o">(</span><span class="n">Number</span> <span class="n">n</span> <span class="o">:</span> <span class="n">numbers</span><span class="o">)</span>
+            <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">sameNumber</span><span class="o">.</span><span class="na">apply</span><span class="o">(</span><span class="n">n</span><span class="o">));</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<ul>
+<li><strong>递归类型限制</strong>通过某个包含该类型参数本身的表达式来限制类型参数是允许的。如下：</li>
+</ul>
+<div class="hlcode"><pre><span class="c1">// Using a recursive type bound to express mutual comparability - Pages 132-133</span>
+
+<span class="kn">import</span> <span class="nn">java.util.*</span><span class="o">;</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">RecursiveTypeBound</span> <span class="o">{</span>
+    <span class="c1">// Returns the maximum value in a list - uses recursive type bound</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="o">&lt;</span><span class="n">T</span> <span class="kd">extends</span> <span class="n">Comparable</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;&gt;</span> <span class="n">T</span> <span class="n">max</span><span class="o">(</span><span class="n">List</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">list</span><span class="o">)</span> <span class="o">{</span><span class="c1">//针对可以与自身进行比较的每个类型T</span>
+        <span class="n">Iterator</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">i</span> <span class="o">=</span> <span class="n">list</span><span class="o">.</span><span class="na">iterator</span><span class="o">();</span>
+        <span class="n">T</span> <span class="n">result</span> <span class="o">=</span> <span class="n">i</span><span class="o">.</span><span class="na">next</span><span class="o">();</span>
+        <span class="k">while</span> <span class="o">(</span><span class="n">i</span><span class="o">.</span><span class="na">hasNext</span><span class="o">())</span> <span class="o">{</span>
+            <span class="n">T</span> <span class="n">t</span> <span class="o">=</span> <span class="n">i</span><span class="o">.</span><span class="na">next</span><span class="o">();</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">t</span><span class="o">.</span><span class="na">compareTo</span><span class="o">(</span><span class="n">result</span><span class="o">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="o">)</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="n">t</span><span class="o">;</span>
+        <span class="o">}</span>
+        <span class="k">return</span> <span class="n">result</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">List</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">argList</span> <span class="o">=</span> <span class="n">Arrays</span><span class="o">.</span><span class="na">asList</span><span class="o">(</span><span class="n">args</span><span class="o">);</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">max</span><span class="o">(</span><span class="n">argList</span><span class="o">));</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<h2 id="api">利用有限制通配符来提升API的灵活性</h2>
+<ul>
+<li>参数化类型是不可变的，List&lt; String&gt;不是List&lt; Object&gt;的子类，可以通过<strong>有限制通配符</strong>来弥补这部分灵活性。</li>
+</ul>
+<div class="hlcode"><pre><span class="c1">// Generic stack with bulk methods using wildcard types - </span>
+
+<span class="kn">import</span> <span class="nn">java.util.*</span><span class="o">;</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Stack</span><span class="o">&lt;</span><span class="n">E</span><span class="o">&gt;</span> <span class="o">{</span>
+    <span class="o">...</span>
+    <span class="c1">// pushAll method without wildcard type - deficient!</span>
+<span class="c1">//  public void pushAll(Iterable&lt;E&gt; src) {</span>
+<span class="c1">//      for (E e : src)</span>
+<span class="c1">//          push(e);</span>
+<span class="c1">//  }</span>
+
+     <span class="c1">// Wildcard type for parameter that serves as an E producer</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">pushAll</span><span class="o">(</span><span class="n">Iterable</span><span class="o">&lt;?</span> <span class="kd">extends</span> <span class="n">E</span><span class="o">&gt;</span> <span class="n">src</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">for</span> <span class="o">(</span><span class="n">E</span> <span class="n">e</span> <span class="o">:</span> <span class="n">src</span><span class="o">)</span>
+            <span class="n">push</span><span class="o">(</span><span class="n">e</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="c1">// popAll method without wildcard type - deficient!</span>
+<span class="c1">//  public void popAll(Collection&lt;E&gt; dst) {</span>
+<span class="c1">//      while (!isEmpty())</span>
+<span class="c1">//          dst.add(pop());</span>
+<span class="c1">//  }</span>
+
+    <span class="c1">// Wildcard type for parameter that serves as an E consumer</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">popAll</span><span class="o">(</span><span class="n">Collection</span><span class="o">&lt;?</span> <span class="kd">super</span> <span class="n">E</span><span class="o">&gt;</span> <span class="n">dst</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">while</span> <span class="o">(!</span><span class="n">isEmpty</span><span class="o">())</span>
+            <span class="n">dst</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">pop</span><span class="o">());</span>
+    <span class="o">}</span>
+
+    <span class="c1">// Little program to exercise our generic Stack</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">Stack</span><span class="o">&lt;</span><span class="n">Number</span><span class="o">&gt;</span> <span class="n">numberStack</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Stack</span><span class="o">&lt;</span><span class="n">Number</span><span class="o">&gt;();</span>
+        <span class="n">Iterable</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">&gt;</span> <span class="n">integers</span> <span class="o">=</span> <span class="n">Arrays</span><span class="o">.</span><span class="na">asList</span><span class="o">(</span><span class="mi">3</span><span class="o">,</span> <span class="mi">1</span><span class="o">,</span> <span class="mi">4</span><span class="o">,</span> <span class="mi">1</span><span class="o">,</span> <span class="mi">5</span><span class="o">,</span> <span class="mi">9</span><span class="o">);</span>
+        <span class="n">numberStack</span><span class="o">.</span><span class="na">pushAll</span><span class="o">(</span><span class="n">integers</span><span class="o">);</span>
+
+        <span class="n">Collection</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;</span> <span class="n">objects</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;();</span>
+        <span class="n">numberStack</span><span class="o">.</span><span class="na">popAll</span><span class="o">(</span><span class="n">objects</span><span class="o">);</span>
+
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">objects</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<ul>
+<li><strong>PECS原则</strong>，producer-extends,consumer-super。如果参数化类型表示一个T生产者，就使用&lt;? extends T&gt;;如果它表示一个T消费者，就使用&lt; ? super E&gt;。记住<strong>所有comparable和comparator都是消费者</strong>。</li>
+</ul>
+<div class="hlcode"><pre><span class="c1">// Using a recursive type bound with wildcards - Page 138-139</span>
+
+<span class="kn">import</span> <span class="nn">java.util.*</span><span class="o">;</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">RecursiveTypeBound</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="o">&lt;</span><span class="n">T</span> <span class="kd">extends</span> <span class="n">Comparable</span><span class="o">&lt;?</span> <span class="kd">super</span> <span class="n">T</span><span class="o">&gt;&gt;</span> <span class="n">T</span> <span class="n">max</span><span class="o">(</span>
+        <span class="n">List</span><span class="o">&lt;?</span> <span class="kd">extends</span> <span class="n">T</span><span class="o">&gt;</span> <span class="n">list</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">Iterator</span><span class="o">&lt;?</span> <span class="kd">extends</span> <span class="n">T</span><span class="o">&gt;</span> <span class="n">i</span> <span class="o">=</span> <span class="n">list</span><span class="o">.</span><span class="na">iterator</span><span class="o">();</span>
+        <span class="n">T</span> <span class="n">result</span> <span class="o">=</span> <span class="n">i</span><span class="o">.</span><span class="na">next</span><span class="o">();</span>
+        <span class="k">while</span> <span class="o">(</span><span class="n">i</span><span class="o">.</span><span class="na">hasNext</span><span class="o">())</span> <span class="o">{</span>
+            <span class="n">T</span> <span class="n">t</span> <span class="o">=</span> <span class="n">i</span><span class="o">.</span><span class="na">next</span><span class="o">();</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">t</span><span class="o">.</span><span class="na">compareTo</span><span class="o">(</span><span class="n">result</span><span class="o">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="o">)</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="n">t</span><span class="o">;</span>
+        <span class="o">}</span>
+        <span class="k">return</span> <span class="n">result</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">List</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">argList</span> <span class="o">=</span> <span class="n">Arrays</span><span class="o">.</span><span class="na">asList</span><span class="o">(</span><span class="n">args</span><span class="o">);</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">max</span><span class="o">(</span><span class="n">argList</span><span class="o">));</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<ul>
+<li>不要使用通配符类型作为<strong>返回类型</strong>。除了为用户提供了额外的灵活性外，还会强制用户在客户端代码中使用通配符类型，通配符的使用对于类的用户来说应该是<strong>无形的</strong>。</li>
+<li>如果编译器类型推断不对，可以通过<strong>显示的类型参数</strong>来告诉编译器使用哪种类型。</li>
+</ul>
+<div class="hlcode"><pre><span class="c1">// Generic union method with wildcard types - Pages 137-138</span>
+
+<span class="kn">import</span> <span class="nn">java.util.*</span><span class="o">;</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Union</span> <span class="o">{</span>
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="o">&lt;</span><span class="n">E</span><span class="o">&gt;</span> <span class="n">Set</span><span class="o">&lt;</span><span class="n">E</span><span class="o">&gt;</span> <span class="n">union</span><span class="o">(</span><span class="n">Set</span><span class="o">&lt;?</span> <span class="kd">extends</span> <span class="n">E</span><span class="o">&gt;</span> <span class="n">s1</span><span class="o">,</span>
+                                   <span class="n">Set</span><span class="o">&lt;?</span> <span class="kd">extends</span> <span class="n">E</span><span class="o">&gt;</span> <span class="n">s2</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">Set</span><span class="o">&lt;</span><span class="n">E</span><span class="o">&gt;</span> <span class="n">result</span> <span class="o">=</span> <span class="k">new</span> <span class="n">HashSet</span><span class="o">&lt;</span><span class="n">E</span><span class="o">&gt;(</span><span class="n">s1</span><span class="o">);</span>
+        <span class="n">result</span><span class="o">.</span><span class="na">addAll</span><span class="o">(</span><span class="n">s2</span><span class="o">);</span>
+        <span class="k">return</span> <span class="n">result</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="c1">// Simple program to exercise flexible generic method</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">Set</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">&gt;</span> <span class="n">integers</span> <span class="o">=</span> <span class="k">new</span> <span class="n">HashSet</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">&gt;();</span>
+        <span class="n">integers</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="mi">1</span><span class="o">);</span> 
+        <span class="n">integers</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="mi">3</span><span class="o">);</span> 
+        <span class="n">integers</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="mi">5</span><span class="o">);</span> 
+
+        <span class="n">Set</span><span class="o">&lt;</span><span class="n">Double</span><span class="o">&gt;</span> <span class="n">doubles</span> <span class="o">=</span>  <span class="k">new</span> <span class="n">HashSet</span><span class="o">&lt;</span><span class="n">Double</span><span class="o">&gt;();</span>
+        <span class="n">doubles</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="mf">2.0</span><span class="o">);</span> 
+        <span class="n">doubles</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="mf">4.0</span><span class="o">);</span> 
+        <span class="n">doubles</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="mf">6.0</span><span class="o">);</span> 
+
+        <span class="c1">// Won&#39;t compile; see page 137</span>
+<span class="c1">//      Set&lt;Number&gt; numbers = union(integers, doubles);</span>
+
+        <span class="c1">// Explicit type parameter is necessary here</span>
+        <span class="n">Set</span><span class="o">&lt;</span><span class="n">Number</span><span class="o">&gt;</span> <span class="n">numbers</span> <span class="o">=</span> <span class="n">Union</span><span class="o">.&lt;</span><span class="n">Number</span><span class="o">&gt;</span><span class="n">union</span><span class="o">(</span><span class="n">integers</span><span class="o">,</span> <span class="n">doubles</span><span class="o">);</span>
+
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">numbers</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<h2 id="_9">优先考虑类型安全的异构容器。</h2>
+<ul>
+<li>集合API说明了泛型的一般用法，每个容器只能有<strong>固定数目</strong>的类型参数。可以通过<strong>将类型参数放在键上</strong>而不是容器上来避开这一限制。对于这种类型安全的异构容器，可以用Class对象作为键。以这种方式使用的Class对象称作<strong>类型令牌</strong>。</li>
+</ul>
+<div class="hlcode"><pre><span class="c1">// Typesafe heterogeneous container - Pages 142-145</span>
+
+<span class="kn">import</span> <span class="nn">java.util.*</span><span class="o">;</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Favorites</span> <span class="o">{</span>
+    <span class="c1">// Typesafe heterogeneous container pattern - implementation</span>
+    <span class="c1">//通配符决定key是不同类型的，但其实又都是Class类型的</span>
+    <span class="kd">private</span> <span class="n">Map</span><span class="o">&lt;</span><span class="n">Class</span><span class="o">&lt;?&gt;,</span> <span class="n">Object</span><span class="o">&gt;</span> <span class="n">favorites</span> <span class="o">=</span> 
+        <span class="k">new</span> <span class="n">HashMap</span><span class="o">&lt;</span><span class="n">Class</span><span class="o">&lt;?&gt;,</span> <span class="n">Object</span><span class="o">&gt;();</span>
+
+    <span class="kd">public</span> <span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="kt">void</span> <span class="n">putFavorite</span><span class="o">(</span><span class="n">Class</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">type</span><span class="o">,</span> <span class="n">T</span> <span class="n">instance</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">type</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span>
+            <span class="k">throw</span> <span class="k">new</span> <span class="nf">NullPointerException</span><span class="o">(</span><span class="s">&quot;Type is null&quot;</span><span class="o">);</span>
+        <span class="n">favorites</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">type</span><span class="o">,</span> <span class="n">instance</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">T</span> <span class="n">getFavorite</span><span class="o">(</span><span class="n">Class</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">type</span><span class="o">)</span> <span class="o">{</span>
+    <span class="c1">//class的cast方法，保证返回类型与键值相同</span>
+        <span class="k">return</span> <span class="n">type</span><span class="o">.</span><span class="na">cast</span><span class="o">(</span><span class="n">favorites</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">type</span><span class="o">));</span>
+    <span class="o">}</span>
+
+
+    <span class="c1">// Typesafe heterogeneous container pattern - client</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">Favorites</span> <span class="n">f</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Favorites</span><span class="o">();</span>
+        <span class="n">f</span><span class="o">.</span><span class="na">putFavorite</span><span class="o">(</span><span class="n">String</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="s">&quot;Java&quot;</span><span class="o">);</span>
+        <span class="n">f</span><span class="o">.</span><span class="na">putFavorite</span><span class="o">(</span><span class="n">Integer</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="mh">0xcafebabe</span><span class="o">);</span>
+        <span class="n">f</span><span class="o">.</span><span class="na">putFavorite</span><span class="o">(</span><span class="n">Class</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">Favorites</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+
+        <span class="n">String</span> <span class="n">favoriteString</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="na">getFavorite</span><span class="o">(</span><span class="n">String</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+        <span class="kt">int</span> <span class="n">favoriteInteger</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="na">getFavorite</span><span class="o">(</span><span class="n">Integer</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+        <span class="n">Class</span><span class="o">&lt;?&gt;</span> <span class="n">favoriteClass</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="na">getFavorite</span><span class="o">(</span><span class="n">Class</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">printf</span><span class="o">(</span><span class="s">&quot;%s %x %s%n&quot;</span><span class="o">,</span> <span class="n">favoriteString</span><span class="o">,</span>
+                          <span class="n">favoriteInteger</span><span class="o">,</span> <span class="n">favoriteClass</span><span class="o">.</span><span class="na">getName</span><span class="o">());</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<ul>
+<li><strong>类型安全的异构容器</strong>，Favorites实例是<strong>类型安全</strong>的：当你向它请求String的时候，它从来不会返回一个Integer给你。同时它也是<strong>异构的</strong>：不像普通的Map，它的所有键都是不同类型的。</li>
+<li>Favorites局限性：</li>
+<li>恶意的客户端可以通过<strong>原生态形式</strong>使用Class对象来破坏Favorites的类型安全性。<code>f.putFavorite(Class.class, "Java");</code>解决方法：让putFavorite方法检验instance是否是真的type实例<code>favorites.put(type, type.cast(instance));</code>。</li>
+<li>它不能用在<strong>不可具体化</strong>的类型中。例如List&lt; String&gt;和List&lt; Integer&gt;共用一个Class对象List.class。</li>
+<li>将Class&lt; ?&gt;类型的对象转换成有限制类型Class&lt;? extends Annotation&gt;对象的方法：<strong>asSubclass</strong>。</li>
+</ul>
+<div class="hlcode"><pre><span class="kd">public</span> <span class="kd">class</span> <span class="nc">PrintAnnotation</span> <span class="o">{</span>
+    <span class="c1">// Use of asSubclass to safely cast to a bounded type token</span>
+    <span class="kd">static</span> <span class="n">Annotation</span> <span class="nf">getAnnotation</span><span class="o">(</span><span class="n">AnnotatedElement</span> <span class="n">element</span><span class="o">,</span>
+                                    <span class="n">String</span> <span class="n">annotationTypeName</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">Class</span><span class="o">&lt;?&gt;</span> <span class="n">annotationType</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span> <span class="c1">// Unbounded type token</span>
+        <span class="k">try</span> <span class="o">{</span>
+            <span class="n">annotationType</span> <span class="o">=</span> <span class="n">Class</span><span class="o">.</span><span class="na">forName</span><span class="o">(</span><span class="n">annotationTypeName</span><span class="o">);</span>
+        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Exception</span> <span class="n">ex</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">throw</span> <span class="k">new</span> <span class="nf">IllegalArgumentException</span><span class="o">(</span><span class="n">ex</span><span class="o">);</span>
+        <span class="o">}</span>
+        <span class="k">return</span> <span class="n">element</span><span class="o">.</span><span class="na">getAnnotation</span><span class="o">(</span>
+            <span class="n">annotationType</span><span class="o">.</span><span class="na">asSubclass</span><span class="o">(</span><span class="n">Annotation</span><span class="o">.</span><span class="na">class</span><span class="o">));</span><span class="c1">//转化为Class&lt;? extends Annotation&gt;类型的参数传入element对象的getAnnotation方法中。</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+    </div>
+    <div id="footer">
+      <span>
+        <p>Copyright © 2016 Guosichuan.
+        Powered by <a href="http://simiki.org/" target="_blank">Simiki</a>.</p>
+        <p>Site Generated 2016-09-04 17:50:58</p>
+      </span>
+    </div>
+  </body>
+</html>
