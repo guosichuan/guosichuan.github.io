@@ -1,0 +1,533 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <link rel="Stylesheet" type="text/css" href="/static/css/style.css">
+    <link rel="Stylesheet" type="text/css" href="/static/css/tango.css">
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="alternate" type="application/atom+xml" href="atom.xml" title="Atom feed">
+    <title>第六章 枚举和注解 - Wiki Guosichuan</title>
+    <meta name="keywords" content="simiki, wiki, python, simple"/>
+    <meta name="description" content="Simiki is a simple static site generator for wiki."/>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  </head>
+
+  <body>
+    <div id="container">
+      
+<div id="header">
+  <div class="post-nav"><a href="/">Home</a>&nbsp;&#187;&nbsp;<a href="/#coding">coding</a>&nbsp;&#187;&nbsp;第六章 枚举和注解
+    <span class="updated">Updated&nbsp;
+      2016-09-09 10:52
+    </span></div>
+</div>
+<div class="clearfix"></div>
+
+<div class="page_title">第六章 枚举和注解</div>
+
+  <h1 id="_1">枚举和注解</h1>
+<p>@(Java基础)[simiki]</p>
+<div class="toc"><span class="toctitle">Table of Contents</span><ul>
+<li><a href="#_1">枚举和注解</a><ul>
+<li><a href="#_2">枚举</a><ul>
+<li><a href="#enumint">用enum代替int常量</a></li>
+<li><a href="#_3">用实例域代替序数</a></li>
+<li><a href="#enumset">EnumSet</a></li>
+<li><a href="#enummap">EnumMap</a></li>
+<li><a href="#_4">枚举实现接口提高扩展性</a></li>
+</ul>
+</li>
+<li><a href="#_5">注解</a><ul>
+<li><a href="#_6">注解优于命名模式</a></li>
+<li><a href="#override">坚持使用Override注解</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<hr />
+<h2 id="_2">枚举</h2>
+<h3 id="enumint">用enum代替int常量</h3>
+<ul>
+<li>与int常量相比，枚举易读(转化toString有语义)，安全(比较时有类型检查),功能更强大。许多枚举<strong>不需要</strong>显示的<strong>构造器或者成员</strong>。</li>
+</ul>
+<div class="hlcode"><pre><span class="kd">public</span> <span class="kd">enum</span> <span class="n">Apple</span><span class="o">{</span><span class="n">FUJI</span><span class="o">,</span><span class="n">PIPPIN</span><span class="o">,</span><span class="n">GRANNY_SMITH</span><span class="o">}</span>
+<span class="n">piblic</span> <span class="kd">enum</span> <span class="n">Orange</span><span class="o">{</span><span class="n">NAVEL</span><span class="o">,</span><span class="n">TEMPLE</span><span class="o">,</span><span class="n">BLOOD</span><span class="o">}</span>
+</pre></div>
+
+
+<ul>
+<li>如果枚举常量需要与<strong>属性</strong>相关联，并需要提供与该<strong>属性相关的方法</strong>。</li>
+<li>枚举天生就是不可变的，因此<strong>所有的域为final</strong>的。</li>
+<li>需要一个带有数据并将数据保存在域中的<strong>构造器</strong>。</li>
+</ul>
+<div class="hlcode"><pre><span class="c1">// Enum type with data and behavior - Pages 149-150</span>
+<span class="kd">public</span> <span class="kd">enum</span> <span class="n">Planet</span> <span class="o">{</span>
+    <span class="n">MERCURY</span><span class="o">(</span><span class="mf">3.302</span><span class="n">e</span><span class="o">+</span><span class="mi">23</span><span class="o">,</span> <span class="mf">2.439e6</span><span class="o">),</span>
+    <span class="n">VENUS</span>  <span class="o">(</span><span class="mf">4.869</span><span class="n">e</span><span class="o">+</span><span class="mi">24</span><span class="o">,</span> <span class="mf">6.052e6</span><span class="o">),</span>
+    <span class="n">EARTH</span>  <span class="o">(</span><span class="mf">5.975</span><span class="n">e</span><span class="o">+</span><span class="mi">24</span><span class="o">,</span> <span class="mf">6.378e6</span><span class="o">),</span>
+    <span class="n">MARS</span>   <span class="o">(</span><span class="mf">6.419</span><span class="n">e</span><span class="o">+</span><span class="mi">23</span><span class="o">,</span> <span class="mf">3.393e6</span><span class="o">),</span>
+    <span class="n">JUPITER</span><span class="o">(</span><span class="mf">1.899</span><span class="n">e</span><span class="o">+</span><span class="mi">27</span><span class="o">,</span> <span class="mf">7.149e7</span><span class="o">),</span>
+    <span class="n">SATURN</span> <span class="o">(</span><span class="mf">5.685</span><span class="n">e</span><span class="o">+</span><span class="mi">26</span><span class="o">,</span> <span class="mf">6.027e7</span><span class="o">),</span>
+    <span class="n">URANUS</span> <span class="o">(</span><span class="mf">8.683</span><span class="n">e</span><span class="o">+</span><span class="mi">25</span><span class="o">,</span> <span class="mf">2.556e7</span><span class="o">),</span>
+    <span class="n">NEPTUNE</span><span class="o">(</span><span class="mf">1.024</span><span class="n">e</span><span class="o">+</span><span class="mi">26</span><span class="o">,</span> <span class="mf">2.477e7</span><span class="o">);</span>
+    <span class="kd">private</span> <span class="kd">final</span> <span class="kt">double</span> <span class="n">mass</span><span class="o">;</span>           <span class="c1">// In kilograms</span>
+    <span class="kd">private</span> <span class="kd">final</span> <span class="kt">double</span> <span class="n">radius</span><span class="o">;</span>         <span class="c1">// In meters</span>
+    <span class="kd">private</span> <span class="kd">final</span> <span class="kt">double</span> <span class="n">surfaceGravity</span><span class="o">;</span> <span class="c1">// In m / s^2</span>
+
+    <span class="c1">// Universal gravitational constant in m^3 / kg s^2</span>
+    <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kt">double</span> <span class="n">G</span> <span class="o">=</span> <span class="mf">6.67300</span><span class="n">E</span><span class="o">-</span><span class="mi">11</span><span class="o">;</span>
+
+    <span class="c1">// Constructor</span>
+    <span class="n">Planet</span><span class="o">(</span><span class="kt">double</span> <span class="n">mass</span><span class="o">,</span> <span class="kt">double</span> <span class="n">radius</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">mass</span> <span class="o">=</span> <span class="n">mass</span><span class="o">;</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">radius</span> <span class="o">=</span> <span class="n">radius</span><span class="o">;</span>
+        <span class="n">surfaceGravity</span> <span class="o">=</span> <span class="n">G</span> <span class="o">*</span> <span class="n">mass</span> <span class="o">/</span> <span class="o">(</span><span class="n">radius</span> <span class="o">*</span> <span class="n">radius</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kt">double</span> <span class="nf">mass</span><span class="o">()</span>           <span class="o">{</span> <span class="k">return</span> <span class="n">mass</span><span class="o">;</span> <span class="o">}</span>
+    <span class="kd">public</span> <span class="kt">double</span> <span class="nf">radius</span><span class="o">()</span>         <span class="o">{</span> <span class="k">return</span> <span class="n">radius</span><span class="o">;</span> <span class="o">}</span>
+    <span class="kd">public</span> <span class="kt">double</span> <span class="nf">surfaceGravity</span><span class="o">()</span> <span class="o">{</span> <span class="k">return</span> <span class="n">surfaceGravity</span><span class="o">;</span> <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kt">double</span> <span class="nf">surfaceWeight</span><span class="o">(</span><span class="kt">double</span> <span class="n">mass</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">mass</span> <span class="o">*</span> <span class="n">surfaceGravity</span><span class="o">;</span>  <span class="c1">// F = ma</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<ul>
+<li>如果遇到<strong>方法特定于常量</strong>的情况，可以利用<strong>虚函数</strong>在常量中实现的方式实现。</li>
+</ul>
+<div class="hlcode"><pre><span class="kd">public</span> <span class="kd">enum</span> <span class="n">Operation</span> <span class="o">{</span>
+    <span class="n">PLUS</span><span class="o">(</span><span class="s">&quot;+&quot;</span><span class="o">)</span> <span class="o">{</span>
+        <span class="kt">double</span> <span class="nf">apply</span><span class="o">(</span><span class="kt">double</span> <span class="n">x</span><span class="o">,</span> <span class="kt">double</span> <span class="n">y</span><span class="o">)</span> <span class="o">{</span> <span class="k">return</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="o">;</span> <span class="o">}</span><span class="c1">//各自实现</span>
+    <span class="o">},</span>
+    <span class="n">MINUS</span><span class="o">(</span><span class="s">&quot;-&quot;</span><span class="o">)</span> <span class="o">{</span>
+        <span class="kt">double</span> <span class="nf">apply</span><span class="o">(</span><span class="kt">double</span> <span class="n">x</span><span class="o">,</span> <span class="kt">double</span> <span class="n">y</span><span class="o">)</span> <span class="o">{</span> <span class="k">return</span> <span class="n">x</span> <span class="o">-</span> <span class="n">y</span><span class="o">;</span> <span class="o">}</span>
+    <span class="o">},</span>
+    <span class="n">TIMES</span><span class="o">(</span><span class="s">&quot;*&quot;</span><span class="o">)</span> <span class="o">{</span>
+        <span class="kt">double</span> <span class="nf">apply</span><span class="o">(</span><span class="kt">double</span> <span class="n">x</span><span class="o">,</span> <span class="kt">double</span> <span class="n">y</span><span class="o">)</span> <span class="o">{</span> <span class="k">return</span> <span class="n">x</span> <span class="o">*</span> <span class="n">y</span><span class="o">;</span> <span class="o">}</span>
+    <span class="o">},</span>
+    <span class="n">DIVIDE</span><span class="o">(</span><span class="s">&quot;/&quot;</span><span class="o">)</span> <span class="o">{</span>
+        <span class="kt">double</span> <span class="nf">apply</span><span class="o">(</span><span class="kt">double</span> <span class="n">x</span><span class="o">,</span> <span class="kt">double</span> <span class="n">y</span><span class="o">)</span> <span class="o">{</span> <span class="k">return</span> <span class="n">x</span> <span class="o">/</span> <span class="n">y</span><span class="o">;</span> <span class="o">}</span>
+    <span class="o">};</span>
+    <span class="kd">private</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">symbol</span><span class="o">;</span>
+    <span class="n">Operation</span><span class="o">(</span><span class="n">String</span> <span class="n">symbol</span><span class="o">)</span> <span class="o">{</span> <span class="k">this</span><span class="o">.</span><span class="na">symbol</span> <span class="o">=</span> <span class="n">symbol</span><span class="o">;</span> <span class="o">}</span>
+    <span class="nd">@Override</span> <span class="kd">public</span> <span class="n">String</span> <span class="n">toString</span><span class="o">()</span> <span class="o">{</span> <span class="k">return</span> <span class="n">symbol</span><span class="o">;</span> <span class="o">}</span>
+
+    <span class="kd">abstract</span> <span class="kt">double</span> <span class="nf">apply</span><span class="o">(</span><span class="kt">double</span> <span class="n">x</span><span class="o">,</span> <span class="kt">double</span> <span class="n">y</span><span class="o">);</span><span class="c1">//虚函数</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<ul>
+<li>遇到多个枚举<strong>共享相同行为</strong>，又不是全部一样，使用<strong>策略枚举</strong>。实质上是上面两种方法的结合。</li>
+</ul>
+<div class="hlcode"><pre><span class="c1">// The strategy enum pattern</span>
+<span class="kd">enum</span> <span class="n">PayrollDay</span> <span class="o">{</span>
+    <span class="n">MONDAY</span><span class="o">(</span><span class="n">PayType</span><span class="o">.</span><span class="na">WEEKDAY</span><span class="o">),</span> <span class="n">TUESDAY</span><span class="o">(</span><span class="n">PayType</span><span class="o">.</span><span class="na">WEEKDAY</span><span class="o">),</span>
+    <span class="n">WEDNESDAY</span><span class="o">(</span><span class="n">PayType</span><span class="o">.</span><span class="na">WEEKDAY</span><span class="o">),</span> <span class="n">THURSDAY</span><span class="o">(</span><span class="n">PayType</span><span class="o">.</span><span class="na">WEEKDAY</span><span class="o">),</span>
+    <span class="n">FRIDAY</span><span class="o">(</span><span class="n">PayType</span><span class="o">.</span><span class="na">WEEKDAY</span><span class="o">),</span>
+    <span class="n">SATURDAY</span><span class="o">(</span><span class="n">PayType</span><span class="o">.</span><span class="na">WEEKEND</span><span class="o">),</span> <span class="n">SUNDAY</span><span class="o">(</span><span class="n">PayType</span><span class="o">.</span><span class="na">WEEKEND</span><span class="o">);</span>
+    <span class="c1">//保存策略枚举</span>
+    <span class="kd">private</span> <span class="kd">final</span> <span class="n">PayType</span> <span class="n">payType</span><span class="o">;</span>
+    <span class="n">PayrollDay</span><span class="o">(</span><span class="n">PayType</span> <span class="n">payType</span><span class="o">)</span> <span class="o">{</span> <span class="k">this</span><span class="o">.</span><span class="na">payType</span> <span class="o">=</span> <span class="n">payType</span><span class="o">;</span> <span class="o">}</span>
+    <span class="c1">//方法调用可以统一，在策略枚举中实现不同行为</span>
+    <span class="kt">double</span> <span class="nf">pay</span><span class="o">(</span><span class="kt">double</span> <span class="n">hoursWorked</span><span class="o">,</span> <span class="kt">double</span> <span class="n">payRate</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">payType</span><span class="o">.</span><span class="na">pay</span><span class="o">(</span><span class="n">hoursWorked</span><span class="o">,</span> <span class="n">payRate</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="c1">// The strategy enum type</span>
+    <span class="c1">//这个枚举属于不同常量不同方法，实现了不同行为</span>
+    <span class="kd">private</span> <span class="kd">enum</span> <span class="n">PayType</span> <span class="o">{</span>
+        <span class="n">WEEKDAY</span> <span class="o">{</span>
+            <span class="kt">double</span> <span class="nf">overtimePay</span><span class="o">(</span><span class="kt">double</span> <span class="n">hours</span><span class="o">,</span> <span class="kt">double</span> <span class="n">payRate</span><span class="o">)</span> <span class="o">{</span>
+                <span class="k">return</span> <span class="n">hours</span> <span class="o">&lt;=</span> <span class="n">HOURS_PER_SHIFT</span> <span class="o">?</span> <span class="mi">0</span> <span class="o">:</span>
+                  <span class="o">(</span><span class="n">hours</span> <span class="o">-</span> <span class="n">HOURS_PER_SHIFT</span><span class="o">)</span> <span class="o">*</span> <span class="n">payRate</span> <span class="o">/</span> <span class="mi">2</span><span class="o">;</span>
+            <span class="o">}</span>
+        <span class="o">},</span>
+        <span class="n">WEEKEND</span> <span class="o">{</span>
+            <span class="kt">double</span> <span class="nf">overtimePay</span><span class="o">(</span><span class="kt">double</span> <span class="n">hours</span><span class="o">,</span> <span class="kt">double</span> <span class="n">payRate</span><span class="o">)</span> <span class="o">{</span>
+                <span class="k">return</span> <span class="n">hours</span> <span class="o">*</span> <span class="n">payRate</span> <span class="o">/</span> <span class="mi">2</span><span class="o">;</span>
+            <span class="o">}</span>
+        <span class="o">};</span>
+        <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kt">int</span> <span class="n">HOURS_PER_SHIFT</span> <span class="o">=</span> <span class="mi">8</span><span class="o">;</span>
+
+        <span class="kd">abstract</span> <span class="kt">double</span> <span class="nf">overtimePay</span><span class="o">(</span><span class="kt">double</span> <span class="n">hrs</span><span class="o">,</span> <span class="kt">double</span> <span class="n">payRate</span><span class="o">);</span>
+
+        <span class="kt">double</span> <span class="nf">pay</span><span class="o">(</span><span class="kt">double</span> <span class="n">hoursWorked</span><span class="o">,</span> <span class="kt">double</span> <span class="n">payRate</span><span class="o">)</span> <span class="o">{</span>
+            <span class="kt">double</span> <span class="n">basePay</span> <span class="o">=</span> <span class="n">hoursWorked</span> <span class="o">*</span> <span class="n">payRate</span><span class="o">;</span>
+            <span class="k">return</span> <span class="n">basePay</span> <span class="o">+</span> <span class="n">overtimePay</span><span class="o">(</span><span class="n">hoursWorked</span><span class="o">,</span> <span class="n">payRate</span><span class="o">);</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<ul>
+<li>枚举中的switch语句一般用来给<strong>外部的</strong>枚举类型增加特定于常量的行为。</li>
+</ul>
+<div class="hlcode"><pre><span class="kd">public</span> <span class="kd">static</span> <span class="n">Operation</span> <span class="nf">inverse</span><span class="o">(</span><span class="n">Operation</span> <span class="n">op</span><span class="o">){</span>
+    <span class="k">switch</span><span class="o">(</span><span class="n">op</span><span class="o">){</span>
+        <span class="k">case</span> <span class="nl">PLUS:</span> <span class="k">return</span> <span class="n">Operation</span><span class="o">.</span><span class="na">MINUS</span><span class="o">;</span>
+        <span class="k">case</span> <span class="nl">MINUS:</span> <span class="k">return</span> <span class="n">Operation</span><span class="o">.</span><span class="na">PLUS</span><span class="o">;</span>
+        <span class="k">case</span> <span class="nl">TIMES:</span> <span class="k">return</span> <span class="n">Operation</span><span class="o">.</span><span class="na">DIVIDE</span><span class="o">;</span>
+        <span class="k">case</span> <span class="nl">DIVIDE:</span> <span class="k">return</span> <span class="n">Operation</span><span class="o">.</span><span class="na">TIMES</span><span class="o">;</span>
+        <span class="k">default</span><span class="o">:</span> <span class="k">throw</span> <span class="k">new</span> <span class="n">AssertionError</span><span class="o">(</span><span class="s">&quot;Unknown op:&quot;</span> <span class="o">+</span> <span class="n">op</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<h3 id="_3">用实例域代替序数</h3>
+<ul>
+<li>所有枚举都有一个ordinal方法，它返回每个枚举常量在类型中的数字位置。但是这个数字位置<strong>不受人为的控制</strong>,应尽量避免使用。应用<strong>实力域</strong>替代。</li>
+</ul>
+<div class="hlcode"><pre><span class="c1">// Enum with integer data stored in an instance field</span>
+<span class="kd">public</span> <span class="kd">enum</span> <span class="n">Ensemble</span> <span class="o">{</span>
+    <span class="n">SOLO</span><span class="o">(</span><span class="mi">1</span><span class="o">),</span> <span class="n">DUET</span><span class="o">(</span><span class="mi">2</span><span class="o">),</span> <span class="n">TRIO</span><span class="o">(</span><span class="mi">3</span><span class="o">),</span> <span class="n">QUARTET</span><span class="o">(</span><span class="mi">4</span><span class="o">),</span> <span class="n">QUINTET</span><span class="o">(</span><span class="mi">5</span><span class="o">),</span>
+    <span class="n">SEXTET</span><span class="o">(</span><span class="mi">6</span><span class="o">),</span> <span class="n">SEPTET</span><span class="o">(</span><span class="mi">7</span><span class="o">),</span> <span class="n">OCTET</span><span class="o">(</span><span class="mi">8</span><span class="o">),</span> <span class="n">DOUBLE_QUARTET</span><span class="o">(</span><span class="mi">8</span><span class="o">),</span>
+    <span class="n">NONET</span><span class="o">(</span><span class="mi">9</span><span class="o">),</span> <span class="n">DECTET</span><span class="o">(</span><span class="mi">10</span><span class="o">),</span> <span class="n">TRIPLE_QUARTET</span><span class="o">(</span><span class="mi">12</span><span class="o">);</span>
+
+    <span class="kd">private</span> <span class="kd">final</span> <span class="kt">int</span> <span class="n">numberOfMusicians</span><span class="o">;</span>
+    <span class="n">Ensemble</span><span class="o">(</span><span class="kt">int</span> <span class="n">size</span><span class="o">)</span> <span class="o">{</span> <span class="k">this</span><span class="o">.</span><span class="na">numberOfMusicians</span> <span class="o">=</span> <span class="n">size</span><span class="o">;</span> <span class="o">}</span>
+    <span class="kd">public</span> <span class="kt">int</span> <span class="nf">numberOfMusicians</span><span class="o">()</span> <span class="o">{</span> <span class="k">return</span> <span class="n">numberOfMusicians</span><span class="o">;</span> <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<h3 id="enumset">EnumSet</h3>
+<div class="hlcode"><pre><span class="c1">// EnumSet - a modern replacement for bit fields - Page 160</span>
+
+<span class="kn">import</span> <span class="nn">java.util.*</span><span class="o">;</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Text</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="kd">enum</span> <span class="n">Style</span> <span class="o">{</span> <span class="n">BOLD</span><span class="o">,</span> <span class="n">ITALIC</span><span class="o">,</span> <span class="n">UNDERLINE</span><span class="o">,</span> <span class="n">STRIKETHROUGH</span> <span class="o">}</span>
+
+    <span class="c1">// Any Set could be passed in, but EnumSet is clearly best</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">applyStyles</span><span class="o">(</span><span class="n">Set</span><span class="o">&lt;</span><span class="n">Style</span><span class="o">&gt;</span> <span class="n">styles</span><span class="o">)</span> <span class="o">{</span>
+        <span class="c1">// Body goes here</span>
+    <span class="o">}</span>
+
+    <span class="c1">// Sample use</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">Text</span> <span class="n">text</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Text</span><span class="o">();</span>
+        <span class="c1">//EnumSet的使用</span>
+        <span class="n">text</span><span class="o">.</span><span class="na">applyStyles</span><span class="o">(</span><span class="n">EnumSet</span><span class="o">.</span><span class="na">of</span><span class="o">(</span><span class="n">Style</span><span class="o">.</span><span class="na">BOLD</span><span class="o">,</span> <span class="n">Style</span><span class="o">.</span><span class="na">ITALIC</span><span class="o">));</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<h3 id="enummap">EnumMap</h3>
+<p>注意：EnumMap构造器采用键类型的Class对象，提供运行时的泛型信息。</p>
+<div class="hlcode"><pre><span class="c1">// Using an EnumMap to associate data with an enum - Pages 161-162</span>
+
+<span class="kn">import</span> <span class="nn">java.util.*</span><span class="o">;</span>
+
+<span class="c1">// Simplistic class representing a culinary herb - Page 161</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Herb</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="kd">enum</span> <span class="n">Type</span> <span class="o">{</span> <span class="n">ANNUAL</span><span class="o">,</span> <span class="n">PERENNIAL</span><span class="o">,</span> <span class="n">BIENNIAL</span> <span class="o">}</span>
+
+    <span class="kd">private</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">name</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="kd">final</span> <span class="n">Type</span> <span class="n">type</span><span class="o">;</span>
+
+    <span class="n">Herb</span><span class="o">(</span><span class="n">String</span> <span class="n">name</span><span class="o">,</span> <span class="n">Type</span> <span class="n">type</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">;</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">type</span> <span class="o">=</span> <span class="n">type</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="nd">@Override</span> <span class="kd">public</span> <span class="n">String</span> <span class="n">toString</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">name</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">Herb</span><span class="o">[]</span> <span class="n">garden</span> <span class="o">=</span> <span class="o">{</span>
+            <span class="k">new</span> <span class="nf">Herb</span><span class="o">(</span><span class="s">&quot;Basil&quot;</span><span class="o">,</span>    <span class="n">Type</span><span class="o">.</span><span class="na">ANNUAL</span><span class="o">),</span>
+            <span class="k">new</span> <span class="nf">Herb</span><span class="o">(</span><span class="s">&quot;Carroway&quot;</span><span class="o">,</span> <span class="n">Type</span><span class="o">.</span><span class="na">BIENNIAL</span><span class="o">),</span>
+            <span class="k">new</span> <span class="nf">Herb</span><span class="o">(</span><span class="s">&quot;Dill&quot;</span><span class="o">,</span>     <span class="n">Type</span><span class="o">.</span><span class="na">ANNUAL</span><span class="o">),</span>
+            <span class="k">new</span> <span class="nf">Herb</span><span class="o">(</span><span class="s">&quot;Lavendar&quot;</span><span class="o">,</span> <span class="n">Type</span><span class="o">.</span><span class="na">PERENNIAL</span><span class="o">),</span>
+            <span class="k">new</span> <span class="nf">Herb</span><span class="o">(</span><span class="s">&quot;Parsley&quot;</span><span class="o">,</span>  <span class="n">Type</span><span class="o">.</span><span class="na">BIENNIAL</span><span class="o">),</span>
+            <span class="k">new</span> <span class="nf">Herb</span><span class="o">(</span><span class="s">&quot;Rosemary&quot;</span><span class="o">,</span> <span class="n">Type</span><span class="o">.</span><span class="na">PERENNIAL</span><span class="o">)</span>
+        <span class="o">};</span>
+
+        <span class="c1">// Using an EnumMap to associate data with an enum - Page 162</span>
+        <span class="n">Map</span><span class="o">&lt;</span><span class="n">Herb</span><span class="o">.</span><span class="na">Type</span><span class="o">,</span> <span class="n">Set</span><span class="o">&lt;</span><span class="n">Herb</span><span class="o">&gt;&gt;</span> <span class="n">herbsByType</span> <span class="o">=</span>
+            <span class="k">new</span> <span class="n">EnumMap</span><span class="o">&lt;</span><span class="n">Herb</span><span class="o">.</span><span class="na">Type</span><span class="o">,</span> <span class="n">Set</span><span class="o">&lt;</span><span class="n">Herb</span><span class="o">&gt;&gt;(</span><span class="n">Herb</span><span class="o">.</span><span class="na">Type</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+        <span class="k">for</span> <span class="o">(</span><span class="n">Herb</span><span class="o">.</span><span class="na">Type</span> <span class="n">t</span> <span class="o">:</span> <span class="n">Herb</span><span class="o">.</span><span class="na">Type</span><span class="o">.</span><span class="na">values</span><span class="o">())</span>
+            <span class="n">herbsByType</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">t</span><span class="o">,</span> <span class="k">new</span> <span class="n">HashSet</span><span class="o">&lt;</span><span class="n">Herb</span><span class="o">&gt;());</span>
+        <span class="k">for</span> <span class="o">(</span><span class="n">Herb</span> <span class="n">h</span> <span class="o">:</span> <span class="n">garden</span><span class="o">)</span>
+            <span class="n">herbsByType</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">h</span><span class="o">.</span><span class="na">type</span><span class="o">).</span><span class="na">add</span><span class="o">(</span><span class="n">h</span><span class="o">);</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">herbsByType</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<h3 id="_4">枚举实现接口提高扩展性</h3>
+<ul>
+<li>接口</li>
+</ul>
+<div class="hlcode"><pre><span class="c1">// Emulated extensible enum using an interface - Page 165</span>
+<span class="kd">public</span> <span class="kd">interface</span> <span class="nc">Operation</span> <span class="o">{</span>
+    <span class="kt">double</span> <span class="nf">apply</span><span class="o">(</span><span class="kt">double</span> <span class="n">x</span><span class="o">,</span> <span class="kt">double</span> <span class="n">y</span><span class="o">);</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<ul>
+<li>实现枚举1</li>
+</ul>
+<div class="hlcode"><pre><span class="c1">// Emulated extensible enum using an interface - Basic implementation - Page 165</span>
+<span class="kd">public</span> <span class="kd">enum</span> <span class="n">BasicOperation</span>  <span class="kd">implements</span> <span class="n">Operation</span> <span class="o">{</span>
+    <span class="n">PLUS</span><span class="o">(</span><span class="s">&quot;+&quot;</span><span class="o">)</span> <span class="o">{</span>
+        <span class="kd">public</span> <span class="kt">double</span> <span class="nf">apply</span><span class="o">(</span><span class="kt">double</span> <span class="n">x</span><span class="o">,</span> <span class="kt">double</span> <span class="n">y</span><span class="o">)</span> <span class="o">{</span> <span class="k">return</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="o">;</span> <span class="o">}</span>
+    <span class="o">},</span>
+    <span class="n">MINUS</span><span class="o">(</span><span class="s">&quot;-&quot;</span><span class="o">)</span> <span class="o">{</span>
+        <span class="kd">public</span> <span class="kt">double</span> <span class="nf">apply</span><span class="o">(</span><span class="kt">double</span> <span class="n">x</span><span class="o">,</span> <span class="kt">double</span> <span class="n">y</span><span class="o">)</span> <span class="o">{</span> <span class="k">return</span> <span class="n">x</span> <span class="o">-</span> <span class="n">y</span><span class="o">;</span> <span class="o">}</span>
+    <span class="o">},</span>
+    <span class="n">TIMES</span><span class="o">(</span><span class="s">&quot;*&quot;</span><span class="o">)</span> <span class="o">{</span>
+        <span class="kd">public</span> <span class="kt">double</span> <span class="nf">apply</span><span class="o">(</span><span class="kt">double</span> <span class="n">x</span><span class="o">,</span> <span class="kt">double</span> <span class="n">y</span><span class="o">)</span> <span class="o">{</span> <span class="k">return</span> <span class="n">x</span> <span class="o">*</span> <span class="n">y</span><span class="o">;</span> <span class="o">}</span>
+    <span class="o">},</span>
+    <span class="n">DIVIDE</span><span class="o">(</span><span class="s">&quot;/&quot;</span><span class="o">)</span> <span class="o">{</span>
+        <span class="kd">public</span> <span class="kt">double</span> <span class="nf">apply</span><span class="o">(</span><span class="kt">double</span> <span class="n">x</span><span class="o">,</span> <span class="kt">double</span> <span class="n">y</span><span class="o">)</span> <span class="o">{</span> <span class="k">return</span> <span class="n">x</span> <span class="o">/</span> <span class="n">y</span><span class="o">;</span> <span class="o">}</span>
+    <span class="o">};</span>
+    <span class="kd">private</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">symbol</span><span class="o">;</span>
+    <span class="n">BasicOperation</span><span class="o">(</span><span class="n">String</span> <span class="n">symbol</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">symbol</span> <span class="o">=</span> <span class="n">symbol</span><span class="o">;</span>
+    <span class="o">}</span>
+    <span class="nd">@Override</span> <span class="kd">public</span> <span class="n">String</span> <span class="n">toString</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">symbol</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<ul>
+<li>实现枚举2,并通过接口调用方法</li>
+</ul>
+<div class="hlcode"><pre><span class="c1">// Emulated extension enum - Page 166-167</span>
+
+<span class="kn">import</span> <span class="nn">java.util.*</span><span class="o">;</span>
+
+<span class="kd">public</span> <span class="kd">enum</span> <span class="n">ExtendedOperation</span> <span class="kd">implements</span> <span class="n">Operation</span> <span class="o">{</span>
+    <span class="n">EXP</span><span class="o">(</span><span class="s">&quot;^&quot;</span><span class="o">)</span> <span class="o">{</span>
+        <span class="kd">public</span> <span class="kt">double</span> <span class="nf">apply</span><span class="o">(</span><span class="kt">double</span> <span class="n">x</span><span class="o">,</span> <span class="kt">double</span> <span class="n">y</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">return</span> <span class="n">Math</span><span class="o">.</span><span class="na">pow</span><span class="o">(</span><span class="n">x</span><span class="o">,</span> <span class="n">y</span><span class="o">);</span>
+        <span class="o">}</span>
+    <span class="o">},</span>
+    <span class="n">REMAINDER</span><span class="o">(</span><span class="s">&quot;%&quot;</span><span class="o">)</span> <span class="o">{</span>
+        <span class="kd">public</span> <span class="kt">double</span> <span class="nf">apply</span><span class="o">(</span><span class="kt">double</span> <span class="n">x</span><span class="o">,</span> <span class="kt">double</span> <span class="n">y</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">return</span> <span class="n">x</span> <span class="o">%</span> <span class="n">y</span><span class="o">;</span>
+        <span class="o">}</span>
+    <span class="o">};</span>
+
+    <span class="kd">private</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">symbol</span><span class="o">;</span>
+    <span class="n">ExtendedOperation</span><span class="o">(</span><span class="n">String</span> <span class="n">symbol</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">symbol</span> <span class="o">=</span> <span class="n">symbol</span><span class="o">;</span>
+    <span class="o">}</span>
+    <span class="nd">@Override</span> <span class="kd">public</span> <span class="n">String</span> <span class="n">toString</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">symbol</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="c1">// Test class to exercise all operations in &quot;extension enum&quot; - Page 167</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="kt">double</span> <span class="n">x</span> <span class="o">=</span> <span class="n">Double</span><span class="o">.</span><span class="na">parseDouble</span><span class="o">(</span><span class="n">args</span><span class="o">[</span><span class="mi">0</span><span class="o">]);</span>
+        <span class="kt">double</span> <span class="n">y</span> <span class="o">=</span> <span class="n">Double</span><span class="o">.</span><span class="na">parseDouble</span><span class="o">(</span><span class="n">args</span><span class="o">[</span><span class="mi">1</span><span class="o">]);</span>
+        <span class="n">test</span><span class="o">(</span><span class="n">ExtendedOperation</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">x</span><span class="o">,</span> <span class="n">y</span><span class="o">);</span>
+
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">();</span>  <span class="c1">// Print a blank line between tests</span>
+        <span class="n">test2</span><span class="o">(</span><span class="n">Arrays</span><span class="o">.</span><span class="na">asList</span><span class="o">(</span><span class="n">ExtendedOperation</span><span class="o">.</span><span class="na">values</span><span class="o">()),</span> <span class="n">x</span><span class="o">,</span> <span class="n">y</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="c1">// test parameter is a bounded type token  (Item 29)</span>
+    <span class="kd">private</span> <span class="kd">static</span> <span class="o">&lt;</span><span class="n">T</span> <span class="kd">extends</span> <span class="n">Enum</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="o">&amp;</span> <span class="n">Operation</span><span class="o">&gt;</span> <span class="kt">void</span> <span class="n">test</span><span class="o">(</span><span class="c1">//T是枚举且实现了Operation接口</span>
+            <span class="n">Class</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">opSet</span><span class="o">,</span> <span class="kt">double</span> <span class="n">x</span><span class="o">,</span> <span class="kt">double</span> <span class="n">y</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">for</span> <span class="o">(</span><span class="n">Operation</span> <span class="n">op</span> <span class="o">:</span> <span class="n">opSet</span><span class="o">.</span><span class="na">getEnumConstants</span><span class="o">())</span>
+            <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">printf</span><span class="o">(</span><span class="s">&quot;%f %s %f = %f%n&quot;</span><span class="o">,</span>
+                              <span class="n">x</span><span class="o">,</span> <span class="n">op</span><span class="o">,</span> <span class="n">y</span><span class="o">,</span> <span class="n">op</span><span class="o">.</span><span class="na">apply</span><span class="o">(</span><span class="n">x</span><span class="o">,</span> <span class="n">y</span><span class="o">));</span><span class="c1">//通过接口调用</span>
+    <span class="o">}</span>
+
+    <span class="c1">// test parameter is a bounded wildcard type (Item 28)</span>
+    <span class="kd">private</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">test2</span><span class="o">(</span><span class="n">Collection</span><span class="o">&lt;?</span> <span class="kd">extends</span> <span class="n">Operation</span><span class="o">&gt;</span> <span class="n">opSet</span><span class="o">,</span>
+                              <span class="kt">double</span> <span class="n">x</span><span class="o">,</span> <span class="kt">double</span> <span class="n">y</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">for</span> <span class="o">(</span><span class="n">Operation</span> <span class="n">op</span> <span class="o">:</span> <span class="n">opSet</span><span class="o">)</span>
+            <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">printf</span><span class="o">(</span><span class="s">&quot;%f %s %f = %f%n&quot;</span><span class="o">,</span>
+                              <span class="n">x</span><span class="o">,</span> <span class="n">op</span><span class="o">,</span> <span class="n">y</span><span class="o">,</span> <span class="n">op</span><span class="o">.</span><span class="na">apply</span><span class="o">(</span><span class="n">x</span><span class="o">,</span> <span class="n">y</span><span class="o">));</span><span class="c1">//通过接口调用</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<hr />
+<h2 id="_5">注解</h2>
+<h3 id="_6">注解优于命名模式</h3>
+<ul>
+<li>之前，junit等工具都是按照方法名test*的<strong>命名模式</strong>来测试的，这种方式缺点：</li>
+<li><strong>文字拼写</strong>错误导致失败</li>
+<li>灵活性不强，作用对象形式单一。（<strong>注解可以配置@Target</strong>）</li>
+<li>
+<p>没有办法提供<strong>参数</strong>值。（注解有参数）</p>
+</li>
+<li>
+<p>模仿@Test注解</p>
+</li>
+</ul>
+<div class="hlcode"><pre><span class="c1">// Marker annotation type declaration - Page 169</span>
+<span class="kn">import</span> <span class="nn">java.lang.annotation.*</span><span class="o">;</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * Indicates that the annotated method is a test method.</span>
+<span class="cm"> * Use only on parameterless static methods.</span>
+<span class="cm"> */</span>
+<span class="nd">@Retention</span><span class="o">(</span><span class="n">RetentionPolicy</span><span class="o">.</span><span class="na">RUNTIME</span><span class="o">)</span><span class="c1">//保留策略</span>
+<span class="nd">@Target</span><span class="o">(</span><span class="n">ElementType</span><span class="o">.</span><span class="na">METHOD</span><span class="o">)</span><span class="c1">//作用对象</span>
+<span class="kd">public</span> <span class="nd">@interface</span> <span class="n">Test</span> <span class="o">{</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<ul>
+<li>使用@Test注解</li>
+</ul>
+<div class="hlcode"><pre><span class="c1">// Program containing marker annotations - Page 170</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Sample</span> <span class="o">{</span>
+    <span class="nd">@Test</span> <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="n">m1</span><span class="o">()</span> <span class="o">{</span> <span class="o">}</span>  <span class="c1">// Test should pass</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">m2</span><span class="o">()</span> <span class="o">{</span> <span class="o">}</span>
+    <span class="nd">@Test</span> <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="n">m3</span><span class="o">()</span> <span class="o">{</span>    <span class="c1">// Test Should fail</span>
+        <span class="k">throw</span> <span class="k">new</span> <span class="nf">RuntimeException</span><span class="o">(</span><span class="s">&quot;Boom&quot;</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">m4</span><span class="o">()</span> <span class="o">{</span> <span class="o">}</span>
+    <span class="nd">@Test</span> <span class="kd">public</span> <span class="kt">void</span> <span class="n">m5</span><span class="o">()</span> <span class="o">{</span> <span class="o">}</span> <span class="c1">// INVALID USE: nonstatic method</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">m6</span><span class="o">()</span> <span class="o">{</span> <span class="o">}</span>
+    <span class="nd">@Test</span> <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="n">m7</span><span class="o">()</span> <span class="o">{</span>    <span class="c1">// Test should fail</span>
+        <span class="k">throw</span> <span class="k">new</span> <span class="nf">RuntimeException</span><span class="o">(</span><span class="s">&quot;Crash&quot;</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">m8</span><span class="o">()</span> <span class="o">{</span> <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<ul>
+<li>ExceptionTest注解（<strong>传参</strong>）</li>
+</ul>
+<div class="hlcode"><pre><span class="c1">// Annotation type with an array parameter -  Page 173</span>
+
+<span class="kn">import</span> <span class="nn">java.lang.annotation.*</span><span class="o">;</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * Indicates that the annotated method is a test method that</span>
+<span class="cm"> * must throw the any of the designated exceptions to succeed.</span>
+<span class="cm"> */</span>
+
+<span class="nd">@Retention</span><span class="o">(</span><span class="n">RetentionPolicy</span><span class="o">.</span><span class="na">RUNTIME</span><span class="o">)</span>
+<span class="nd">@Target</span><span class="o">(</span><span class="n">ElementType</span><span class="o">.</span><span class="na">METHOD</span><span class="o">)</span>
+<span class="kd">public</span> <span class="nd">@interface</span> <span class="n">ExceptionTest</span> <span class="o">{</span>
+    <span class="n">Class</span><span class="o">&lt;?</span> <span class="kd">extends</span> <span class="n">Exception</span><span class="o">&gt;[]</span> <span class="n">value</span><span class="o">();</span><span class="c1">//取参数的方法，方法名为传入参数的属性名（默认为value）</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<ul>
+<li>@ExceptionTest注解使用</li>
+</ul>
+<div class="hlcode"><pre><span class="c1">// Program containing annotations with a parameter - Page 172</span>
+
+<span class="kn">import</span> <span class="nn">java.util.*</span><span class="o">;</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Sample2</span> <span class="o">{</span>
+    <span class="nd">@ExceptionTest</span><span class="o">(</span><span class="n">ArithmeticException</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">m1</span><span class="o">()</span> <span class="o">{</span>  <span class="c1">// Test should pass</span>
+        <span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="n">i</span> <span class="o">/</span> <span class="n">i</span><span class="o">;</span>
+    <span class="o">}</span>
+    <span class="nd">@ExceptionTest</span><span class="o">(</span><span class="n">ArithmeticException</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">m2</span><span class="o">()</span> <span class="o">{</span>  <span class="c1">// Should fail (wrong exception)</span>
+        <span class="kt">int</span><span class="o">[]</span> <span class="n">a</span> <span class="o">=</span> <span class="k">new</span> <span class="kt">int</span><span class="o">[</span><span class="mi">0</span><span class="o">];</span>
+        <span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">a</span><span class="o">[</span><span class="mi">1</span><span class="o">];</span>
+    <span class="o">}</span>
+    <span class="nd">@ExceptionTest</span><span class="o">(</span><span class="n">ArithmeticException</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">m3</span><span class="o">()</span> <span class="o">{</span> <span class="o">}</span>  <span class="c1">// Should fail (no exception)</span>
+
+    <span class="c1">// Code containing an annotation with an array parameter - Page 174</span>
+    <span class="nd">@ExceptionTest</span><span class="o">({</span> <span class="n">IndexOutOfBoundsException</span><span class="o">.</span><span class="na">class</span><span class="o">,</span>
+                <span class="n">NullPointerException</span><span class="o">.</span><span class="na">class</span> <span class="o">})</span><span class="c1">//参数为数组</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">doublyBad</span><span class="o">()</span> <span class="o">{</span>
+        <span class="n">List</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">list</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;();</span>
+
+        <span class="c1">// The spec permits this method to throw either</span>
+        <span class="c1">// IndexOutOfBoundsException or NullPointerException</span>
+        <span class="n">list</span><span class="o">.</span><span class="na">addAll</span><span class="o">(</span><span class="mi">5</span><span class="o">,</span> <span class="kc">null</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<ul>
+<li>模仿JUnit工具的主程序</li>
+</ul>
+<div class="hlcode"><pre><span class="c1">// Program to process marker annotations - Page 171</span>
+
+<span class="kn">import</span> <span class="nn">java.lang.reflect.*</span><span class="o">;</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">RunTests</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+        <span class="kt">int</span> <span class="n">tests</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+        <span class="kt">int</span> <span class="n">passed</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+        <span class="n">Class</span> <span class="n">testClass</span> <span class="o">=</span> <span class="n">Class</span><span class="o">.</span><span class="na">forName</span><span class="o">(</span><span class="n">args</span><span class="o">[</span><span class="mi">0</span><span class="o">]);</span>
+        <span class="k">for</span> <span class="o">(</span><span class="n">Method</span> <span class="n">m</span> <span class="o">:</span> <span class="n">testClass</span><span class="o">.</span><span class="na">getDeclaredMethods</span><span class="o">())</span> <span class="o">{</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">m</span><span class="o">.</span><span class="na">isAnnotationPresent</span><span class="o">(</span><span class="n">Test</span><span class="o">.</span><span class="na">class</span><span class="o">))</span> <span class="o">{</span>
+                <span class="n">tests</span><span class="o">++;</span>
+                <span class="k">try</span> <span class="o">{</span>
+                    <span class="n">m</span><span class="o">.</span><span class="na">invoke</span><span class="o">(</span><span class="kc">null</span><span class="o">);</span>
+                    <span class="n">passed</span><span class="o">++;</span>
+                <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">InvocationTargetException</span> <span class="n">wrappedExc</span><span class="o">)</span> <span class="o">{</span>
+                    <span class="n">Throwable</span> <span class="n">exc</span> <span class="o">=</span> <span class="n">wrappedExc</span><span class="o">.</span><span class="na">getCause</span><span class="o">();</span>
+                    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">m</span> <span class="o">+</span> <span class="s">&quot; failed: &quot;</span> <span class="o">+</span> <span class="n">exc</span><span class="o">);</span>
+                <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Exception</span> <span class="n">exc</span><span class="o">)</span> <span class="o">{</span>
+                    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;INVALID @Test: &quot;</span> <span class="o">+</span> <span class="n">m</span><span class="o">);</span>
+                <span class="o">}</span>
+            <span class="o">}</span>
+
+            <span class="c1">// Array ExceptionTest processing code - Page 174</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">m</span><span class="o">.</span><span class="na">isAnnotationPresent</span><span class="o">(</span><span class="n">ExceptionTest</span><span class="o">.</span><span class="na">class</span><span class="o">))</span> <span class="o">{</span>
+                <span class="n">tests</span><span class="o">++;</span>
+                <span class="k">try</span> <span class="o">{</span>
+                    <span class="n">m</span><span class="o">.</span><span class="na">invoke</span><span class="o">(</span><span class="kc">null</span><span class="o">);</span>
+                    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">printf</span><span class="o">(</span><span class="s">&quot;Test %s failed: no exception%n&quot;</span><span class="o">,</span> <span class="n">m</span><span class="o">);</span>
+                <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Throwable</span> <span class="n">wrappedExc</span><span class="o">)</span> <span class="o">{</span>
+                    <span class="n">Throwable</span> <span class="n">exc</span> <span class="o">=</span> <span class="n">wrappedExc</span><span class="o">.</span><span class="na">getCause</span><span class="o">();</span>
+                    <span class="n">Class</span><span class="o">&lt;?</span> <span class="kd">extends</span> <span class="n">Exception</span><span class="o">&gt;[]</span> <span class="n">excTypes</span> <span class="o">=</span>
+                        <span class="n">m</span><span class="o">.</span><span class="na">getAnnotation</span><span class="o">(</span><span class="n">ExceptionTest</span><span class="o">.</span><span class="na">class</span><span class="o">).</span><span class="na">value</span><span class="o">();</span>
+                    <span class="kt">int</span> <span class="n">oldPassed</span> <span class="o">=</span> <span class="n">passed</span><span class="o">;</span>
+                    <span class="k">for</span> <span class="o">(</span><span class="n">Class</span><span class="o">&lt;?</span> <span class="kd">extends</span> <span class="n">Exception</span><span class="o">&gt;</span> <span class="n">excType</span> <span class="o">:</span> <span class="n">excTypes</span><span class="o">)</span> <span class="o">{</span>
+                        <span class="k">if</span> <span class="o">(</span><span class="n">excType</span><span class="o">.</span><span class="na">isInstance</span><span class="o">(</span><span class="n">exc</span><span class="o">))</span> <span class="o">{</span><span class="c1">//抛出的异常exc是指定异常excType的实例</span>
+                            <span class="n">passed</span><span class="o">++;</span>
+                            <span class="k">break</span><span class="o">;</span>
+                        <span class="o">}</span>
+                    <span class="o">}</span>
+                    <span class="k">if</span> <span class="o">(</span><span class="n">passed</span> <span class="o">==</span> <span class="n">oldPassed</span><span class="o">)</span>
+                        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">printf</span><span class="o">(</span><span class="s">&quot;Test %s failed: %s %n&quot;</span><span class="o">,</span> <span class="n">m</span><span class="o">,</span> <span class="n">exc</span><span class="o">);</span>
+                <span class="o">}</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">printf</span><span class="o">(</span><span class="s">&quot;Passed: %d, Failed: %d%n&quot;</span><span class="o">,</span>
+                          <span class="n">passed</span><span class="o">,</span> <span class="n">tests</span> <span class="o">-</span> <span class="n">passed</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<h3 id="override">坚持使用Override注解</h3>
+<p>让编译器帮助检查方法是否被正确覆盖。</p>
+    </div>
+    <div id="footer">
+      <span>
+        <p>Copyright © 2016 Guosichuan.
+        Powered by <a href="http://simiki.org/" target="_blank">Simiki</a>.</p>
+        <p>Site Generated 2016-09-17 19:41:28</p>
+      </span>
+    </div>
+  </body>
+</html>
