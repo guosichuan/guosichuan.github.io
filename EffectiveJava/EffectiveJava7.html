@@ -1,0 +1,337 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <link rel="Stylesheet" type="text/css" href="/static/css/style.css">
+    <link rel="Stylesheet" type="text/css" href="/static/css/tango.css">
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="alternate" type="application/atom+xml" href="atom.xml" title="Atom feed">
+    <title>第七章 方法 - Wiki Guosichuan</title>
+    <meta name="keywords" content="simiki, wiki, python, simple"/>
+    <meta name="description" content="Simiki is a simple static site generator for wiki."/>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  </head>
+
+  <body>
+    <div id="container">
+      
+<div id="header">
+  <div class="post-nav"><a href="/">Home</a>&nbsp;&#187;&nbsp;<a href="/#EffectiveJava">EffectiveJava</a>&nbsp;&#187;&nbsp;第七章 方法
+    <span class="updated">Updated&nbsp;
+      2016-09-09 18:21
+    </span></div>
+</div>
+<div class="clearfix"></div>
+
+<div class="page_title">第七章 方法</div>
+
+  <h1 id="_1">方法</h1>
+<p>@(Java基础)[simiki]</p>
+<div class="toc"><span class="toctitle">Table of Contents</span><ul>
+<li><a href="#_1">方法</a><ul>
+<li><a href="#_2">检查参数的有效性</a><ul>
+<li><a href="#_3">对于公有的方法，采用抛异常的参数检查</a></li>
+<li><a href="#assert">对于非公有的方法，采用assert进行参数检查</a></li>
+</ul>
+</li>
+<li><a href="#_4">谨慎设计方法签名</a><ul>
+<li><a href="#_5">谨慎选择方法名称</a></li>
+<li><a href="#_6">不要过于追求提供便利的方法</a></li>
+<li><a href="#_7">避免过长的参数列表</a></li>
+</ul>
+</li>
+<li><a href="#_8">慎用重载</a><ul>
+<li><a href="#_9">重载的使用须知</a></li>
+</ul>
+</li>
+<li><a href="#_10">慎用可变参数</a></li>
+<li><a href="#null">返回零长度的数组或者集合，而不是null</a><ul>
+<li><a href="#_11">返回零长度数组</a></li>
+<li><a href="#_12">返回零长度集合</a></li>
+</ul>
+</li>
+<li><a href="#api">为所有导出的API元素编写文档注释</a><ul>
+<li><a href="#_13">方法文档注释</a></li>
+<li><a href="#_14">文档惯例</a></li>
+<li><a href="#java-doc">java doc语法</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<h2 id="_2">检查参数的有效性</h2>
+<h3 id="_3">对于公有的方法，采用抛异常的参数检查</h3>
+<div class="hlcode"><pre><span class="kd">public</span> <span class="n">BigInteger</span> <span class="nf">mod</span><span class="o">(</span><span class="n">BigInteger</span> <span class="n">m</span><span class="o">){</span>
+    <span class="k">if</span><span class="o">(</span><span class="n">m</span><span class="o">.</span><span class="na">signum</span><span class="o">()&lt;=</span><span class="mi">0</span><span class="o">)</span>
+    <span class="c1">//常用异常：IllegalArgumentException、IndexOutOfBoundsException或NullPointerException</span>
+            <span class="k">throw</span> <span class="k">new</span> <span class="nf">ArithmeticException</span><span class="o">(</span><span class="s">&quot;Modulus &lt;= 0: &quot;</span> <span class="o">+</span> <span class="n">m</span><span class="o">);</span>
+            <span class="o">...</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<h3 id="assert">对于非公有的方法，采用assert进行参数检查</h3>
+<div class="hlcode"><pre><span class="kd">private</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">sort</span><span class="o">(</span><span class="kt">long</span> <span class="n">a</span><span class="o">[],</span><span class="kt">int</span> <span class="n">offset</span><span class="o">,</span><span class="kt">int</span> <span class="n">length</span><span class="o">){</span>
+    <span class="k">assert</span> <span class="n">a</span><span class="o">!=</span> <span class="kc">null</span><span class="o">;</span>
+    <span class="k">assert</span> <span class="n">offset</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="n">offset</span> <span class="o">&lt;=</span> <span class="n">a</span><span class="o">.</span><span class="na">length</span><span class="o">;</span>
+    <span class="k">assert</span> <span class="n">length</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="n">length</span> <span class="o">&lt;=</span> <span class="n">a</span><span class="o">.</span><span class="na">length</span> <span class="o">-</span> <span class="n">offset</span><span class="o">;</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<h2 id="_4">谨慎设计方法签名</h2>
+<h3 id="_5">谨慎选择方法名称</h3>
+<ul>
+<li><strong>易于理解</strong>，并且与同一个包中的其他名称<strong>风格一致</strong>。</li>
+<li>选择与<strong>大众认可</strong>的名称相一致的名称。</li>
+</ul>
+<h3 id="_6">不要过于追求提供便利的方法</h3>
+<p>只有一项操作被<strong>经常用到</strong>的时候，才考虑为它提供快捷方式。如果不能确定，还是不提供为好。</p>
+<h3 id="_7">避免过长的参数列表</h3>
+<ul>
+<li>目标是<strong>四个参数或者更少</strong>。<strong>相同类型</strong>的长参数序列格外有害。缩短过长参数列表方法：</li>
+<li>把方法<strong>分解</strong>成多个方法，每个方法只需要这些参数的一个子集。</li>
+<li>创建<strong>辅助类</strong>，用来保存参数的分组（一般为<strong>静态成员类</strong>）。</li>
+<li>结合前两种方法，从对象构建到方法调用都采用<strong>Builder模式</strong>。</li>
+<li>参数类型<strong>优先使用接口</strong>而不是类，这样可以对实现接口所有类适用。</li>
+<li>对于boolean参数，优先使用两个元素的<strong>枚举类型</strong>，这样易于阅读和编写，同时易于扩展。</li>
+</ul>
+<h2 id="_8">慎用重载</h2>
+<ul>
+<li>对于<strong>重载</strong>（参数不同）方法的选择是<strong>静态</strong>的，而对于被<strong>覆盖</strong>（子类覆盖父类）的方法的选择是<strong>动态</strong>的。</li>
+<li>重载参数<strong>相关</strong>时（子类关系）容易让人混淆。</li>
+<li>重载</li>
+</ul>
+<div class="hlcode"><pre><span class="c1">//重载</span>
+<span class="c1">// Broken! - What does this program print?</span>
+
+<span class="kn">import</span> <span class="nn">java.util.*</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.math.*</span><span class="o">;</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">CollectionClassifier</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="n">String</span> <span class="nf">classify</span><span class="o">(</span><span class="n">Set</span><span class="o">&lt;?&gt;</span> <span class="n">s</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="s">&quot;Set&quot;</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="n">String</span> <span class="nf">classify</span><span class="o">(</span><span class="n">List</span><span class="o">&lt;?&gt;</span> <span class="n">lst</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="s">&quot;List&quot;</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="n">String</span> <span class="nf">classify</span><span class="o">(</span><span class="n">Collection</span><span class="o">&lt;?&gt;</span> <span class="n">c</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="s">&quot;Unknown Collection&quot;</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">Collection</span><span class="o">&lt;?&gt;[]</span> <span class="n">collections</span> <span class="o">=</span> <span class="o">{</span>
+            <span class="k">new</span> <span class="n">HashSet</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;(),</span>
+            <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">BigInteger</span><span class="o">&gt;(),</span>
+            <span class="k">new</span> <span class="n">HashMap</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;().</span><span class="na">values</span><span class="o">()</span>
+        <span class="o">};</span>
+
+        <span class="k">for</span> <span class="o">(</span><span class="n">Collection</span><span class="o">&lt;?&gt;</span> <span class="n">c</span> <span class="o">:</span> <span class="n">collections</span><span class="o">)</span>
+            <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">classify</span><span class="o">(</span><span class="n">c</span><span class="o">));</span><span class="c1">//重载选择是静态，所以判断调用Collection对应参数的方法。</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<ol>
+<li>覆盖</li>
+</ol>
+<div class="hlcode"><pre><span class="c1">//覆盖</span>
+<span class="c1">// Overriding demonstration - Page 192</span>
+
+<span class="kd">class</span> <span class="nc">Wine</span> <span class="o">{</span>
+    <span class="n">String</span> <span class="nf">name</span><span class="o">()</span> <span class="o">{</span> <span class="k">return</span> <span class="s">&quot;wine&quot;</span><span class="o">;</span> <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="kd">class</span> <span class="nc">SparklingWine</span> <span class="kd">extends</span> <span class="n">Wine</span> <span class="o">{</span>
+    <span class="nd">@Override</span> <span class="n">String</span> <span class="n">name</span><span class="o">()</span> <span class="o">{</span> <span class="k">return</span> <span class="s">&quot;sparkling wine&quot;</span><span class="o">;</span> <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="kd">class</span> <span class="nc">Champagne</span> <span class="kd">extends</span> <span class="n">SparklingWine</span> <span class="o">{</span>
+    <span class="nd">@Override</span> <span class="n">String</span> <span class="n">name</span><span class="o">()</span> <span class="o">{</span> <span class="k">return</span> <span class="s">&quot;champagne&quot;</span><span class="o">;</span> <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Overriding</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">Wine</span><span class="o">[]</span> <span class="n">wines</span> <span class="o">=</span> <span class="o">{</span>
+            <span class="k">new</span> <span class="nf">Wine</span><span class="o">(),</span> <span class="k">new</span> <span class="n">SparklingWine</span><span class="o">(),</span> <span class="k">new</span> <span class="n">Champagne</span><span class="o">()</span>
+        <span class="o">};</span>
+        <span class="k">for</span> <span class="o">(</span><span class="n">Wine</span> <span class="n">wine</span> <span class="o">:</span> <span class="n">wines</span><span class="o">)</span>
+            <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">wine</span><span class="o">.</span><span class="na">name</span><span class="o">());</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<h3 id="_9">重载的使用须知</h3>
+<ol>
+<li>尽量不要导出两个具有<strong>相同参数数目</strong>的重载方法。</li>
+<li>如果参数数目相同，方法使用<strong>可变参数</strong>，应该给方法起不同的名称（比如<code>writeLong(long)</code>,<code>writeInt(int)</code>），而不是使用重载（<code>write(long)</code>,<code>write(int)</code>）。</li>
+<li>如果参数数目相同，那么只要确保每一对重载方法至少有一个<strong>对应的参数不相关</strong>，也是安全的。</li>
+<li>如果参数数目相同，对应参数又相关，那么只要保证它们<strong>执行相同的功能</strong>(一般是采用<strong>调用转发</strong>的方法)，也问题不大。</li>
+</ol>
+<div class="hlcode"><pre><span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">contentEquals</span><span class="o">(</span><span class="n">StringBuffer</span> <span class="n">sb</span><span class="o">){</span>
+    <span class="k">return</span> <span class="nf">contentEquals</span><span class="o">((</span><span class="n">CharSequence</span><span class="o">)</span> <span class="n">sb</span><span class="o">);</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<h2 id="_10">慎用可变参数</h2>
+<ul>
+<li>可变参数机制通过先<strong>创建一个数组</strong>，数组大小为在调用位置所传递的参数数量，然后将参数值传到数组中，最后将<strong>数组</strong>传递给方法。</li>
+</ul>
+<div class="hlcode"><pre><span class="c1">// Sample uses of varargs</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Varargs</span> <span class="o">{</span>
+
+    <span class="c1">// Simple use of varargs - Page 197</span>
+    <span class="kd">static</span> <span class="kt">int</span> <span class="nf">sum</span><span class="o">(</span><span class="kt">int</span><span class="o">...</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="kt">int</span> <span class="n">sum</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+        <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">arg</span> <span class="o">:</span> <span class="n">args</span><span class="o">)</span>
+            <span class="n">sum</span> <span class="o">+=</span> <span class="n">arg</span><span class="o">;</span>
+        <span class="k">return</span> <span class="n">sum</span><span class="o">;</span>
+    <span class="o">}</span>
+
+
+    <span class="c1">// The WRONG way to use varargs to pass one or more arguments! - Page 197</span>
+<span class="c1">//  static int min(int... args) {</span>
+<span class="c1">//      if (args.length == 0)</span>
+<span class="c1">//          throw new IllegalArgumentException(&quot;Too few arguments&quot;);</span>
+<span class="c1">//      int min = args[0];</span>
+<span class="c1">//      for (int i = 1; i &lt; args.length; i++)</span>
+<span class="c1">//          if (args[i] &lt; min)</span>
+<span class="c1">//              min = args[i];</span>
+<span class="c1">//      return min;</span>
+<span class="c1">//  }</span>
+
+    <span class="c1">// The right way to use varargs to pass one or more arguments - Page 198</span>
+    <span class="kd">static</span> <span class="kt">int</span> <span class="nf">min</span><span class="o">(</span><span class="kt">int</span> <span class="n">firstArg</span><span class="o">,</span> <span class="kt">int</span><span class="o">...</span> <span class="n">remainingArgs</span><span class="o">)</span> <span class="o">{</span>
+        <span class="kt">int</span> <span class="n">min</span> <span class="o">=</span> <span class="n">firstArg</span><span class="o">;</span>
+        <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">arg</span> <span class="o">:</span> <span class="n">remainingArgs</span><span class="o">)</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">arg</span> <span class="o">&lt;</span> <span class="n">min</span><span class="o">)</span>
+                <span class="n">min</span> <span class="o">=</span> <span class="n">arg</span><span class="o">;</span>
+        <span class="k">return</span> <span class="n">min</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">sum</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="mi">2</span><span class="o">,</span> <span class="mi">3</span><span class="o">,</span> <span class="mi">4</span><span class="o">,</span> <span class="mi">5</span><span class="o">,</span> <span class="mi">6</span><span class="o">,</span> <span class="mi">7</span><span class="o">,</span> <span class="mi">8</span><span class="o">,</span> <span class="mi">9</span><span class="o">,</span> <span class="mi">10</span><span class="o">));</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">min</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="mi">2</span><span class="o">,</span> <span class="mi">3</span><span class="o">,</span> <span class="mi">4</span><span class="o">,</span> <span class="mi">5</span><span class="o">,</span> <span class="mi">6</span><span class="o">,</span> <span class="mi">7</span><span class="o">,</span> <span class="mi">8</span><span class="o">,</span> <span class="mi">9</span><span class="o">,</span> <span class="mi">10</span><span class="o">));</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<ul>
+<li>只有当确实是在参数<strong>数量不定</strong>的值上执行调用时才使用可变参数。</li>
+<li>可变参数方法的每次调用都会导致进行一次<strong>数组分配和初始化</strong>。在<strong>重视性能</strong>的场景下，如果某个方法95%的调用会有<strong>3个或者更少的参数</strong>，应该使用<strong>重载</strong>来提高95%情况下的性能。</li>
+</ul>
+<div class="hlcode"><pre><span class="kd">public</span> <span class="kt">void</span> <span class="nf">foo</span><span class="o">(){}</span>
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">foo</span><span class="o">(</span><span class="kt">int</span> <span class="n">a1</span><span class="o">){}</span>
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">foo</span><span class="o">(</span><span class="kt">int</span> <span class="n">a1</span><span class="o">,</span><span class="kt">int</span> <span class="n">a2</span><span class="o">){}</span>
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">foo</span><span class="o">(</span><span class="kt">int</span> <span class="n">a1</span><span class="o">,</span><span class="kt">int</span> <span class="n">a2</span><span class="o">,</span><span class="kt">int</span> <span class="n">a3</span><span class="o">){}</span>
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">foo</span><span class="o">(</span><span class="kt">int</span> <span class="n">a1</span><span class="o">,</span><span class="kt">int</span> <span class="n">a2</span><span class="o">,</span><span class="kt">int</span> <span class="n">a3</span><span class="o">,</span><span class="kt">int</span><span class="o">...</span> <span class="n">rest</span><span class="o">){}</span>
+</pre></div>
+
+
+<h2 id="null">返回零长度的数组或者集合，而不是null</h2>
+<h3 id="_11">返回零长度数组</h3>
+<div class="hlcode"><pre><span class="kd">private</span> <span class="kd">final</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">Cheese</span><span class="o">&gt;</span> <span class="n">cheesesInStock</span> <span class="o">=</span> <span class="o">...;</span>
+<span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">Cheese</span><span class="o">[]</span> <span class="n">EMPTY_CHEESE_ARRAY</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Cheese</span><span class="o">[</span><span class="mi">0</span><span class="o">];</span>
+<span class="kd">public</span> <span class="n">Cheese</span><span class="o">[]</span> <span class="nf">getCheese</span><span class="o">(){</span>
+    <span class="k">return</span> <span class="n">cheesesInStock</span><span class="o">.</span><span class="na">toArray</span><span class="o">(</span><span class="n">EMPTY_CHEESE_ARRAY</span><span class="o">);</span><span class="c1">//如果输入数组足够容纳集合就返回这个数组。</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<h3 id="_12">返回零长度集合</h3>
+<div class="hlcode"><pre><span class="kd">public</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">Cheese</span><span class="o">&gt;</span> <span class="nf">getCheeseList</span><span class="o">(){</span>
+    <span class="k">if</span><span class="o">(</span><span class="n">cheesesInStock</span><span class="o">.</span><span class="na">isEmpty</span><span class="o">())</span>
+        <span class="k">return</span> <span class="n">Collections</span><span class="o">.</span><span class="na">emptyList</span><span class="o">();</span>
+    <span class="k">else</span>
+        <span class="k">return</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">Cheese</span><span class="o">&gt;(</span><span class="n">cheesesInStock</span><span class="o">);</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<h2 id="api">为所有导出的API元素编写文档注释</h2>
+<h3 id="_13">方法文档注释</h3>
+<p><strong>方法</strong>的文档注释应该简洁描述出它和客户端之间的约定
+- 概要描述，说明<strong>这个方法做了什么</strong>，一般是<strong>动词短语</strong>。
+- 列举出这个方法的所有<strong>前提条件</strong>（为了使客户能够调用这个方法，而必须满足的条件）
+1. <strong>@throws标签</strong>中描述前提条件未满足导致异常。
+2. <strong>@param标签</strong>中指定前提条件。</p>
+<ul>
+<li>列举出这个方法的<strong>后置条件</strong>（调用成功完成之后，哪些条件必须要满足）。</li>
+<li>描述这个方法的<strong>副作用</strong>（系统状态中可以观察到的变化）。</li>
+<li>描述类或者方法的<strong>线程安全性</strong>。</li>
+</ul>
+<div class="hlcode"><pre><span class="cm">/** </span>
+<span class="cm"> * Returns the element at the specified position in this list. --做了什么</span>
+<span class="cm"> * </span>
+<span class="cm"> * &lt;p&gt;This method is &lt;i&gt;not&lt;/i&gt; guaranteed to run in constant </span>
+<span class="cm"> * time.In some implementations it may run in time proportional </span>
+<span class="cm"> * to the element position. </span>
+<span class="cm"> * </span>
+<span class="cm"> * @param index index of element to return:must be </span>
+<span class="cm"> *         non-negative and less than the size of this list --前提条件</span>
+<span class="cm"> * @return the element at the specified position in this list </span>
+<span class="cm"> * @throws IndexOutOfBoundsException if the index is out of range --前提条件</span>
+<span class="cm"> *         ({@code index &lt; 0 || index &gt;= this.size()}) </span>
+<span class="cm"> */</span>  
+<span class="n">E</span> <span class="nf">get</span><span class="o">(</span><span class="kt">int</span> <span class="n">index</span><span class="o">);</span>  
+</pre></div>
+
+
+<h3 id="_14">文档惯例</h3>
+<ul>
+<li>@param或@return标签后面的文字应该是一个<strong>名词短语</strong>。（index of element to return）</li>
+<li>@throws标签之后的文字应该是单词<strong>if+名词短语</strong>或<strong>算术表达式</strong>，描述在什么条件下异常被抛出。</li>
+<li>@param，@return，@throws都<strong>不用句点</strong>来结束。</li>
+<li>文档中的'this'的语义指方法调用所在的<strong>对象</strong>。</li>
+<li>文档注释在源代码和产生的文档中都应该是易于阅读的，如果二者不可兼得，<strong>优先文档可读性</strong>。</li>
+<li>文档注释的第一句话应该是所属元素的<strong>概要描述</strong>。</li>
+<li>同一个类或者接口中的两个成员或者构造器，不应该具有<strong>同样</strong>的概要描述。特别是<strong>重载</strong>的情形。</li>
+<li><strong>方法</strong>和<strong>构造器</strong>的概要描述应该是完整的<strong>动词短语</strong>。</li>
+<li>
+<p><strong>类</strong>，<strong>接口</strong>和<strong>域</strong>的概要描述应该是一个<strong>名词短语</strong>。</p>
+</li>
+<li>
+<p>为<strong>泛型</strong>的类，接口或者方法编写文档时，确保要在文档中说明<strong>所有的类型参数</strong>。</p>
+</li>
+</ul>
+<div class="hlcode"><pre><span class="cm">/**</span>
+<span class="cm">...</span>
+<span class="cm">*@param &lt;K&gt; the type of keys maintained by this map</span>
+<span class="cm">*@param &lt;V&gt; the type of mapped values</span>
+<span class="cm">*/</span>
+<span class="kd">public</span> <span class="kd">interface</span> <span class="nc">Map</span><span class="o">&lt;</span><span class="n">K</span><span class="o">,</span><span class="n">V</span><span class="o">&gt;</span> <span class="o">{</span>
+    <span class="o">...</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<ul>
+<li>为<strong>枚举类型</strong>编写文档时，要确保在文档中说明<strong>常量</strong>，以及<strong>类型</strong>，还有任何<strong>公有的方法</strong>。</li>
+<li>为<strong>注解类型</strong>编写文档时，要确保在文档中说明<strong>所有成员</strong>，以及<strong>类型本身</strong>。该类型的概要描述比较特殊，应该是一个<strong>动词短语</strong>。说明当程序元素具有该注解时表示什么意思。（Indicates that the annotated method is a test method that must throw the designated exception to succeed）</li>
+</ul>
+<h3 id="java-doc">java doc语法</h3>
+<ul>
+<li>文档注释中包含的任意<strong>HTML元素</strong>都会出现在结果HTML文档中。</li>
+<li><strong>{@code}标签</strong>使括号中内容<strong>代码字体</strong>，并规避<strong>HTML标记</strong>和嵌套的<strong>Javadoc标签</strong>。</li>
+<li>多行代码使用<code>&lt;pre&gt;{@code,多行代码}&lt;/pre&gt;</code>标签。</li>
+<li><strong>{@literal}标签</strong>除了不以代码字体渲染文本之外，其余方便<strong>同{@code}标签</strong>。</li>
+<li>概要描述内容中如果<strong>包含句点会提前终止描述</strong>，应该用{@literal}包起来。</li>
+<li><strong>{@inheritDoc}标签</strong>从父类中继承文档注释的部分内容。</li>
+</ul>
+    </div>
+    <div id="footer">
+      <span>
+        <p>Copyright © 2016 Guosichuan.
+        Powered by <a href="http://simiki.org/" target="_blank">Simiki</a>.</p>
+        <p>Site Generated 2016-09-25 13:53:41</p>
+      </span>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,316 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <link rel="Stylesheet" type="text/css" href="/static/css/style.css">
+    <link rel="Stylesheet" type="text/css" href="/static/css/tango.css">
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="alternate" type="application/atom+xml" href="atom.xml" title="Atom feed">
+    <title>第八章 通用程序设计 - Wiki Guosichuan</title>
+    <meta name="keywords" content="simiki, wiki, python, simple"/>
+    <meta name="description" content="Simiki is a simple static site generator for wiki."/>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  </head>
+
+  <body>
+    <div id="container">
+      
+<div id="header">
+  <div class="post-nav"><a href="/">Home</a>&nbsp;&#187;&nbsp;<a href="/#EffectiveJava">EffectiveJava</a>&nbsp;&#187;&nbsp;第八章 通用程序设计
+    <span class="updated">Updated&nbsp;
+      2016-09-24 15:39
+    </span></div>
+</div>
+<div class="clearfix"></div>
+
+<div class="page_title">第八章 通用程序设计</div>
+
+  <div class="toc"><span class="toctitle">Table of Contents</span><ul>
+<li><a href="#_1">通用程序设计</a><ul>
+<li><a href="#_2">将局部变量的作用域最小化</a></li>
+<li><a href="#for-eachfor">for-each循环优先于传统的for循环</a></li>
+<li><a href="#_3">了解和使用类库（不要重新发明轮子）</a><ul>
+<li><a href="#_4">使用标准类库的好处</a></li>
+<li><a href="#_5">标准类库</a></li>
+</ul>
+</li>
+<li><a href="#floatdouble">如果需要精确的答案，请避免使用float和double</a></li>
+<li><a href="#_6">基本类型优先于装箱基本类型</a><ul>
+<li><a href="#_7">基本类型和装箱基本类型的区别</a></li>
+<li><a href="#_8">使用装箱基本类型情况</a></li>
+</ul>
+</li>
+<li><a href="#_9">如果其他类型更合适，则尽量避免使用字符串</a></li>
+<li><a href="#_10">当心字符串连接的性能。</a></li>
+<li><a href="#_11">通过接口引用对象</a></li>
+<li><a href="#_12">接口优先于反射机制</a></li>
+<li><a href="#_13">谨慎地使用本地方法</a></li>
+<li><a href="#_14">谨慎地进行优化</a></li>
+<li><a href="#_15">遵守普遍接受的命名惯例</a><ul>
+<li><a href="#_16">字面惯例</a></li>
+<li><a href="#_17">语法惯例</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<h1 id="_1">通用程序设计</h1>
+<p>@(Java基础)[simiki]</p>
+<h2 id="_2">将局部变量的作用域最小化</h2>
+<ul>
+<li>在变量<strong>第一次使用</strong>它的地方声明。</li>
+<li>一般每个局部变量的声明都应该包含一个合理的<strong>初始化</strong>表达式。</li>
+<li><strong>for循环优先于while循环</strong>。for循环的循环变量的作用域被限定在了代码块之内，反观while循环的初始化必须在代码块外。注意，如果循环条件中存在复杂计算开销，可以用一下方式优化代码。<code>for(int i=0,n=expensiveComputation();i&lt;n;i++)</code></li>
+<li>使<strong>方法小而集中</strong>。多个操作<strong>拆分</strong>成多个方法来将局部变量互相隔离开来。</li>
+</ul>
+<h2 id="for-eachfor">for-each循环优先于传统的for循环</h2>
+<ul>
+<li>for-each循环不仅能便利集合和数组，还能够遍历任何<strong>实现了Iterable接口</strong>的对象。</li>
+<li>三种<strong>无法使用for-each</strong>循环的情况：</li>
+<li><strong>过滤</strong>——遍历集合删除元素需要显式地使用<strong>迭代器</strong>来删除。</li>
+<li><strong>转换</strong>——要取代集合中某个元素的值，需要取到<strong>索引</strong>或者<strong>迭代器</strong>来定位元素。</li>
+<li><strong>平行迭代</strong>——要并行地遍历多个集合，需要显式地控制<strong>迭代器</strong>或<strong>索引</strong>变量。</li>
+</ul>
+<h2 id="_3">了解和使用类库（不要重新发明轮子）</h2>
+<h3 id="_4">使用标准类库的好处</h3>
+<ul>
+<li>可以充分利用这些编写标准类库的<strong>专家的知识</strong>，以及在你之前的其他人的<strong>使用经验</strong>。</li>
+<li>不必浪费时间为那些与<strong>工作不太相关的问题</strong>提供特别的解决方案。</li>
+<li>它的<strong>性能</strong>会随着时间的推移而不断提高，无需你做任何事情。</li>
+<li>可以使自己的代码<strong>融入主流</strong>。这样的代码更加易读，易维护，易被大多数的开发人员重用。</li>
+</ul>
+<h3 id="_5">标准类库</h3>
+<p>每个程序员都应该熟悉<strong>java.lang</strong>、<strong>java.util</strong>、<strong>java.io</strong>、<strong>java.util.concurrent</strong>中的内容。</p>
+<h2 id="floatdouble">如果需要精确的答案，请避免使用float和double</h2>
+<ul>
+<li><strong>float</strong>和<strong>double</strong>类型只是提供了较为精确的快速<strong>近似计算结果</strong>，它们本身并不是精确的。</li>
+<li>如果<strong>准确度</strong>很关键，可以使用<code>final BigDecimal TEN_CENTS = new BigDecimal(".10")</code>，但是它有两个缺点</li>
+<li>与基本运算类型相比，较<strong>麻烦</strong>。</li>
+<li><strong>速度很慢</strong>。</li>
+</ul>
+<div class="hlcode"><pre>   <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">howManyCandies2</span><span class="o">()</span> <span class="o">{</span>
+        <span class="kd">final</span> <span class="n">BigDecimal</span> <span class="n">TEN_CENTS</span> <span class="o">=</span> <span class="k">new</span> <span class="n">BigDecimal</span><span class="o">(</span> <span class="s">&quot;.10&quot;</span><span class="o">);</span>
+
+        <span class="kt">int</span> <span class="n">itemsBought</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+        <span class="n">BigDecimal</span> <span class="n">funds</span> <span class="o">=</span> <span class="k">new</span> <span class="n">BigDecimal</span><span class="o">(</span><span class="s">&quot;1.00&quot;</span><span class="o">);</span>
+        <span class="k">for</span> <span class="o">(</span><span class="n">BigDecimal</span> <span class="n">price</span> <span class="o">=</span> <span class="n">TEN_CENTS</span><span class="o">;</span>
+             <span class="n">funds</span><span class="o">.</span><span class="na">compareTo</span><span class="o">(</span><span class="n">price</span><span class="o">)</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="o">;</span>
+             <span class="n">price</span> <span class="o">=</span> <span class="n">price</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">TEN_CENTS</span><span class="o">))</span> <span class="o">{</span>
+            <span class="n">itemsBought</span><span class="o">++;</span>
+            <span class="n">funds</span> <span class="o">=</span> <span class="n">funds</span><span class="o">.</span><span class="na">subtract</span><span class="o">(</span><span class="n">price</span><span class="o">);</span>
+        <span class="o">}</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">itemsBought</span> <span class="o">+</span> <span class="s">&quot; items bought.&quot;</span><span class="o">);</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;Money left over: $&quot;</span> <span class="o">+</span> <span class="n">funds</span><span class="o">);</span>
+    <span class="o">}</span>
+</pre></div>
+
+
+<ul>
+<li>如果<strong>性能和准确都很关键</strong>，并且愿意自己记录维护十进制<strong>小数点</strong>，可以使用<strong>int</strong>（<strong>9位</strong>数字）或者<strong>long</strong>（<strong>18位</strong>数字）。</li>
+</ul>
+<h2 id="_6">基本类型优先于装箱基本类型</h2>
+<h3 id="_7">基本类型和装箱基本类型的区别</h3>
+<ul>
+<li>基本类型只有值，装箱基本类型具有与值不同的<strong>同一性</strong>（<strong>==操作符</strong>无法判断值是否相等）。导致对装箱基本类型运用<strong>==操作符几乎总是错误的</strong>。</li>
+</ul>
+<div class="hlcode"><pre><span class="c1">// Broken comparator - can you spot the flaw? - Page 221</span>
+
+<span class="kn">import</span> <span class="nn">java.util.*</span><span class="o">;</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">BrokenComparator</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+
+        <span class="c1">// Broken comparator - can you spot the flaw? - Page 221</span>
+        <span class="n">Comparator</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">&gt;</span> <span class="n">naturalOrder</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Comparator</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">&gt;()</span> <span class="o">{</span>
+            <span class="kd">public</span> <span class="kt">int</span> <span class="nf">compare</span><span class="o">(</span><span class="n">Integer</span> <span class="n">first</span><span class="o">,</span> <span class="n">Integer</span> <span class="n">second</span><span class="o">)</span> <span class="o">{</span>
+                <span class="k">return</span> <span class="n">first</span> <span class="o">&lt;</span> <span class="n">second</span> <span class="o">?</span> <span class="o">-</span><span class="mi">1</span> <span class="o">:</span> <span class="o">(</span><span class="n">first</span> <span class="o">==</span> <span class="n">second</span> <span class="o">?</span> <span class="mi">0</span> <span class="o">:</span> <span class="mi">1</span><span class="o">);</span>
+            <span class="o">}</span>
+        <span class="o">};</span>
+
+
+        <span class="c1">// Fixed Comparator - Page 222</span>
+<span class="c1">//      Comparator&lt;Integer&gt; naturalOrder = new Comparator&lt;Integer&gt;() {</span>
+<span class="c1">//          public int compare(Integer first, Integer second) {</span>
+<span class="c1">//              int f = first;   // Auto-unboxing</span>
+<span class="c1">//              int s = second;  // Auto-unboxing</span>
+<span class="c1">//              return f &lt; s ? -1 : (f == s ? 0 : 1); // No unboxing</span>
+<span class="c1">//          }</span>
+<span class="c1">//      };</span>
+
+        <span class="kt">int</span> <span class="n">result</span> <span class="o">=</span> <span class="n">naturalOrder</span><span class="o">.</span><span class="na">compare</span><span class="o">(</span><span class="k">new</span> <span class="n">Integer</span><span class="o">(</span><span class="mi">42</span><span class="o">),</span> <span class="k">new</span> <span class="n">Integer</span><span class="o">(</span><span class="mi">42</span><span class="o">));</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">result</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<ul>
+<li>基本类型只有功能完善的值，而装箱基本类型除了有对应基本类型有功能的值外，还有个<strong>非功能的值：null</strong>。<strong>当一项操作中混合使用基本类型和装箱基本类型时，装箱基本类型就会自动拆箱</strong>。如果<strong>null对象自动拆箱</strong>会引发<strong>NullPointerException</strong>异常。</li>
+</ul>
+<div class="hlcode"><pre><span class="c1">// What does this program do? - Page 222</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Unbelievable</span> <span class="o">{</span>
+    <span class="kd">static</span> <span class="n">Integer</span> <span class="n">i</span><span class="o">;</span>
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">i</span> <span class="o">==</span> <span class="mi">42</span><span class="o">)</span>
+            <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;Unbelievable&quot;</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<ul>
+<li>基本类型通常比装箱基本类型更<strong>节省时间和空间</strong>。下面例子，局部变量sum类型是装箱类型，而i是基本类型，在累加时，sum拆箱，+i后装箱，反复拆箱和装箱导致性能明显下降。 </li>
+</ul>
+<div class="hlcode"><pre><span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">){</span>
+    <span class="n">Long</span> <span class="n">sum</span> <span class="o">=</span> <span class="mi">0L</span><span class="o">;</span>
+    <span class="k">for</span><span class="o">(</span><span class="kt">long</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">Integer</span><span class="o">.</span><span class="na">MAX_VALUE</span><span class="o">;</span> <span class="n">i</span><span class="o">++){</span>
+        <span class="n">sum</span> <span class="o">+=</span> <span class="n">i</span><span class="o">;</span>
+    <span class="o">}</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">sum</span><span class="o">);</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<h3 id="_8">使用装箱基本类型情况</h3>
+<ul>
+<li>作为集合中的元素、键和值，不能将基本类型放在集合中，所以<strong>不得不使用装箱基本类型</strong>。</li>
+<li>参数化类型中不能使用基本类型，所以<strong>不得不使用装箱基本类型</strong>。</li>
+<li>在进行反射方法调用时，不能使用基本类型，所以<strong>不得不使用装箱基本类型</strong>。</li>
+</ul>
+<h2 id="_9">如果其他类型更合适，则尽量避免使用字符串</h2>
+<ul>
+<li>字符串不适合<strong>代替其他的值类型</strong>。应该使用适当的<strong>其他类型</strong>。</li>
+<li>字符串不适合<strong>代替枚举类型</strong>。应该使用<strong>灵活性、扩展性更强</strong>的枚举类型。</li>
+<li>字符串不适合<strong>代替聚集类型</strong>。如果一个实体有多个组件，用一个<strong>字符串来表示这个实体</strong>通常很不恰当。<code>String compoundKey = classname + "#" + i.next();</code>。通常应该使用<strong>私有静态成员类</strong>来描述这个数据集。</li>
+<li>如果用来<strong>分隔域的字符也出现在某个域中</strong>，结果就会出现混乱。</li>
+<li>如果访问单独的域，必须<strong>解析字符串</strong>，这个过程很慢又繁琐，易出错。</li>
+<li>无法像类一样提供<strong>equals、toString或者compareTo方法</strong>，只能被迫接受String类提供的所有行为。</li>
+</ul>
+<h2 id="_10">当心字符串连接的性能。</h2>
+<p>为连接n个字符串而重复地使用字符串连接操作符，需要<strong>n的平方级的时间</strong>。这是由于字符串不可变，当两个字符串被连接在一起时，它们的内容都要被拷贝。<strong>n</strong>个字符串<strong>*n</strong>次拷贝。为了获得可以接受的性能，使用<strong>StringBuilder替代String</strong>。</p>
+<h2 id="_11">通过接口引用对象</h2>
+<ul>
+<li>如果有<strong>合适的</strong>接口类型存在，那么对于参数、返回值、变量和域来说，就都应该使用接口类型进行声明。</li>
+<li>如果<strong>没有合适的接口存在</strong>，再选择使用类引用对象。<strong>没有合适的接口</strong>的情况：</li>
+<li>具体类没有相关联接口，使用<strong>具体类</strong>来引用对象。</li>
+<li>具体类没有相关联接口，但是对象基于类的框架，应该使用这个<strong>基类</strong>来引用对象。</li>
+<li>具体类实现了接口，但是<strong>接口中没有程序依赖的方法</strong>，则使用<strong>有这个方法的基类或具体类</strong>来引用对象。</li>
+<li>总之，使用<strong>接口</strong>引用对象那个使程序更加灵活，如果接口<strong>没有提供必要方法</strong>，则使用类层次结构中提供了必要功能的<strong>最基础的类</strong>。</li>
+</ul>
+<h2 id="_12">接口优先于反射机制</h2>
+<ul>
+<li>核心反射机制java.lang.reflect,提供了“<strong>通过程序</strong>来访问关于已装载的<strong>类的信息</strong>”的能力。它允许一个类使用另一个类，<strong>即使当前者被编译的时候后者还根本不存在</strong>。</li>
+<li>反射机制的代价：</li>
+<li><strong>丧失了编译时类型检查的好处</strong>。下面的例子会产生3个运行时异常，如果不用反射，编译时这几种错误会被检查覆盖到。</li>
+<li><strong>执行反射访问所需要的代码非常笨拙和冗长</strong>。下面的例子根据类名生成它的实例需要20行冗长的代码，而调用一个构造器可以非常简洁地一行代码搞定。</li>
+<li><strong>性能损失</strong>。</li>
+</ul>
+<div class="hlcode"><pre><span class="c1">// Reflective instantiation with interface access - Page 231</span>
+
+<span class="kn">import</span> <span class="nn">java.util.*</span><span class="o">;</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">MakeSet</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="c1">// Translate the class name into a Class object</span>
+        <span class="n">Class</span><span class="o">&lt;?&gt;</span> <span class="n">cl</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+        <span class="k">try</span> <span class="o">{</span>
+            <span class="n">cl</span> <span class="o">=</span> <span class="n">Class</span><span class="o">.</span><span class="na">forName</span><span class="o">(</span><span class="n">args</span><span class="o">[</span><span class="mi">0</span><span class="o">]);</span>
+        <span class="o">}</span> <span class="k">catch</span><span class="o">(</span><span class="n">ClassNotFoundException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">System</span><span class="o">.</span><span class="na">err</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;Class not found.&quot;</span><span class="o">);</span>
+            <span class="n">System</span><span class="o">.</span><span class="na">exit</span><span class="o">(</span><span class="mi">1</span><span class="o">);</span>
+        <span class="o">}</span>
+
+        <span class="c1">// Instantiate the class</span>
+        <span class="n">Set</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">s</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+        <span class="k">try</span> <span class="o">{</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="o">(</span><span class="n">Set</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;)</span> <span class="n">cl</span><span class="o">.</span><span class="na">newInstance</span><span class="o">();</span>
+        <span class="o">}</span> <span class="k">catch</span><span class="o">(</span><span class="n">IllegalAccessException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">System</span><span class="o">.</span><span class="na">err</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;Class not accessible.&quot;</span><span class="o">);</span>
+            <span class="n">System</span><span class="o">.</span><span class="na">exit</span><span class="o">(</span><span class="mi">1</span><span class="o">);</span>
+        <span class="o">}</span> <span class="k">catch</span><span class="o">(</span><span class="n">InstantiationException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">System</span><span class="o">.</span><span class="na">err</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;Class not instantiable.&quot;</span><span class="o">);</span>
+            <span class="n">System</span><span class="o">.</span><span class="na">exit</span><span class="o">(</span><span class="mi">1</span><span class="o">);</span>
+        <span class="o">}</span>
+
+        <span class="c1">// Exercise the set</span>
+        <span class="n">s</span><span class="o">.</span><span class="na">addAll</span><span class="o">(</span><span class="n">Arrays</span><span class="o">.</span><span class="na">asList</span><span class="o">(</span><span class="n">args</span><span class="o">).</span><span class="na">subList</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="n">args</span><span class="o">.</span><span class="na">length</span><span class="o">));</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">s</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<h2 id="_13">谨慎地使用本地方法</h2>
+<ul>
+<li><strong>Java Native Interface(JNI)</strong> 允许Java应用程序可以调用<strong>本地方法</strong>。所谓<strong>本地方法</strong>是指本地程序设计语言（比如C或者C++）来编写的特殊方法。本地方法在本地语言中可以执行任意的计算任务，并返回到Java程序设计语言。</li>
+<li>使用本地方法来提高性能的做法<strong>不值得提倡</strong>，因为Java在各个方面已经优化得很好了，使用本地方法只会降低性能和安全性。</li>
+</ul>
+<h2 id="_14">谨慎地进行优化</h2>
+<ul>
+<li>不要费力去编写快速的程序，应该<strong>努力编写好的程序</strong>，这样速度自然会随之而来。</li>
+<li>在<strong>设计系统</strong>的时候一定要<strong>考虑性能</strong>的因素。</li>
+<li>如果性能不够好，可以在<strong>性能剖析器</strong>的帮助下找到问题，重点优化所<strong>选择的算法</strong>。</li>
+</ul>
+<h2 id="_15">遵守普遍接受的命名惯例</h2>
+<h3 id="_16">字面惯例</h3>
+<table>
+<thead>
+<tr>
+<th>标识符类型</th>
+<th>例子</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>包</td>
+<td>com.google.inject,org.joda.time.format</td>
+</tr>
+<tr>
+<td>类或者接口</td>
+<td>Timer,FutureTask,LinkedHashMap,HttpServlet</td>
+</tr>
+<tr>
+<td>方法或者域</td>
+<td>remove,ensureCapacity,getCrc</td>
+</tr>
+<tr>
+<td>常量域</td>
+<td>MIN_VALUE,NEGATIVE_INFINITY</td>
+</tr>
+<tr>
+<td>局部变量</td>
+<td>i,xref,houseNumber</td>
+</tr>
+<tr>
+<td>类型参数</td>
+<td>T,E,K,V,X,T1,T2</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_17">语法惯例</h3>
+<ul>
+<li><strong>类</strong>（包括枚举类型）通常用一个<strong>名词或者名词短语</strong>命名，例如Timer、BufferedWriter或者ChessPiece。</li>
+<li><strong>接口</strong>的命名与类相似，例如Collection或Comparator。或者用一个以<strong>"-able"或"-ible"</strong>结尾的<strong>形容词</strong>来命名，例如Runnable、Iterable或者Accessible。</li>
+<li><strong>注解</strong>类型用途比较多，<strong>名词、动词、介词和形容词</strong>都很常用，例如BindingAnnotation、Inject、ImplementedBy或者Singleton。</li>
+<li><strong>方法</strong></li>
+<li>执行某个<strong>动作</strong>的方法通常用<strong>动词或者动词短语</strong>来命名，例如append或drawImage。</li>
+<li><strong>返回boolean值</strong>的方法，<strong>名称往往以"is"开头，很少用has</strong>，后面跟名词或名词短语，或者任何具有形容词功能的单词或短语。例如isDigit、isEnabled或hasSiblings。</li>
+<li>返回被调用对象的一个<strong>非boolean的函数或者属性</strong>，通常用<strong>名词、名词短语或者以动词"get"开头的动词短语</strong>来命名，例如size、hashCode或者getTime。如果所在类是个<strong>Bean</strong>，强制使用"get"开头的形式。</li>
+<li><strong>转换对象类型</strong>（返回<strong>值相同</strong>但不同类型的独立对象）的方法通常使用<strong>toType</strong>，例如toString和toArray。</li>
+<li><strong>返回视图</strong>（视图的类型<strong>不同于</strong>接收对象的类型）的方法通常使用<strong>asType</strong>，例如asList。</li>
+<li>返回与被调对象<strong>同值</strong>的<strong>基本类型</strong>的方法，通常使用<strong>typeValue</strong>，例如intValue。</li>
+<li><strong>静态工厂</strong>，常用名称valueOf、of、getInstance、newInstance、getType和NewType,详情见第二章。</li>
+<li><strong>域</strong>名称的语法通常用<strong>名词或者名词短语</strong>来命名，比如height、digits或bodyStyle。</li>
+</ul>
+    </div>
+    <div id="footer">
+      <span>
+        <p>Copyright © 2016 Guosichuan.
+        Powered by <a href="http://simiki.org/" target="_blank">Simiki</a>.</p>
+        <p>Site Generated 2016-09-25 13:53:41</p>
+      </span>
+    </div>
+  </body>
+</html>
