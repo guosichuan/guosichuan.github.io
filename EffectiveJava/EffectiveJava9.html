@@ -1,0 +1,170 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <link rel="Stylesheet" type="text/css" href="/static/css/style.css">
+    <link rel="Stylesheet" type="text/css" href="/static/css/tango.css">
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="alternate" type="application/atom+xml" href="atom.xml" title="Atom feed">
+    <title>第九章 异常 - Wiki Guosichuan</title>
+    <meta name="keywords" content="simiki, wiki, python, simple"/>
+    <meta name="description" content="Simiki is a simple static site generator for wiki."/>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  </head>
+
+  <body>
+    <div id="container">
+      
+<div id="header">
+  <div class="post-nav"><a href="/">Home</a>&nbsp;&#187;&nbsp;<a href="/#EffectiveJava">EffectiveJava</a>&nbsp;&#187;&nbsp;第九章 异常
+    <span class="updated">Updated&nbsp;
+      2016-09-26 22:16
+    </span></div>
+</div>
+<div class="clearfix"></div>
+
+<div class="page_title">第九章 异常</div>
+
+  <h1 id="_1">异常</h1>
+<p>@(Java基础)[simiki]</p>
+<div class="toc"><span class="toctitle">Table of Contents</span><ul>
+<li><a href="#_1">异常</a><ul>
+<li><a href="#_2">只针对异常的情况才使用异常</a></li>
+<li><a href="#_3">对可恢复的情况使用受检异常，对编程错误使用运行时异常</a><ul>
+<li><a href="#_4">对于可恢复的情况，使用受检的异常</a></li>
+<li><a href="#_5">对于程序错误，则使用运行时异常</a></li>
+<li><a href="#_6">错误通常不使用</a></li>
+</ul>
+</li>
+<li><a href="#_7">避免不必要地使用受检的异常</a></li>
+<li><a href="#_8">优先使用标准的（非受检）异常</a></li>
+<li><a href="#_9">每个方法抛出的异常都要有文档</a></li>
+<li><a href="#_10">在细节消息中包含能捕获失败的信息</a></li>
+<li><a href="#_11">努力使失败保持原子性</a></li>
+<li><a href="#_12">不要忽略异常</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<h2 id="_2">只针对异常的情况才使用异常</h2>
+<ul>
+<li>异常应该<strong>只用于异常</strong>的情况下；它们永远不应该用于正常的控制流。</li>
+<li>基于异常的模式执行速度比标准模式<strong>慢</strong>。</li>
+<li>异常的模式中可能会<strong>掩盖</strong>系统中其他不相关部分的<strong>Bug</strong>。</li>
+<li>设计良好的API不应该<strong>强迫</strong>它的客户端为了正常的控制流而使用异常。</li>
+</ul>
+<div class="hlcode"><pre><span class="c1">//如果Iterator缺少hasNext方法，客户端将被迫使用如下方式</span>
+<span class="k">try</span><span class="o">{</span>
+    <span class="n">Iterator</span><span class="o">&lt;</span><span class="n">Foo</span><span class="o">&gt;</span> <span class="n">i</span> <span class="o">=</span> <span class="n">collection</span><span class="o">.</span><span class="na">iterator</span><span class="o">();</span>
+    <span class="k">while</span><span class="o">(</span><span class="kc">true</span><span class="o">){</span>
+    <span class="n">Foo</span> <span class="n">foo</span> <span class="o">=</span> <span class="n">i</span><span class="o">.</span><span class="na">next</span><span class="o">();</span>
+    <span class="o">}</span>
+<span class="o">}</span> <span class="k">catch</span><span class="o">(</span><span class="n">NoSuchElementException</span> <span class="n">e</span><span class="o">){</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<ul>
+<li>上面这种<strong>“状态相关”的方法</strong>（next方法），只有在特定的不可预知的条件下才可以被调用，我们抛弃异常的模式，有两种更好的解决方案：</li>
+<li><strong>状态测试方法</strong>。给这个类添加单独的“状态测试”方法，即指示是否可以调用这个状态相关的方法（例如：hasNext方法）。优先使用这种方法。</li>
+<li><strong>可识别的返回值方法</strong>。如果“状态相关的”方法被调用时，对象处于不适当的状态之中，返回一个<strong>可识别的值</strong>，比如null。
+如果对象在缺少外部同步的情况下被并发访问，对象在测试时和方法执行时的<strong>状态可能会发生变化</strong>，这种情况用<strong>可识别的返回值方法</strong>比较好。
+如果执行"状态测试"方法时<strong>必须重复"状态相关"方法的工作</strong>，从性能的角度考虑，也应该使用可被识别的返回值。</li>
+</ul>
+<h2 id="_3">对可恢复的情况使用受检异常，对编程错误使用运行时异常</h2>
+<ul>
+<li>Java程序设计语言提供了三种可抛出结构（throwable）:<strong>受检的异常</strong>（checked exception）、<strong>运行时异常</strong>（run-time exception）和<strong>错误</strong>(error)。</li>
+<li><strong>受检查异常</strong>（类）通常会提供一些<strong>辅助方法</strong>来提供一些有助于恢复的信息。</li>
+<li>其中两种<strong>未受检</strong>的可抛出结构：运行时异常和错误。</li>
+</ul>
+<h3 id="_4">对于可恢复的情况，使用受检的异常</h3>
+<p>通过抛出受检的异常，强迫调用者在一个catch子句中处理该异常来<strong>恢复</strong>（或者传播出去<strong>伺机恢复</strong>）。</p>
+<h3 id="_5">对于程序错误，则使用运行时异常</h3>
+<p>用<strong>运行时异常</strong>来表明<strong>编程错误</strong>。大多数运行时异常都表示<strong>前提违例</strong>，例如ArrayIndexOutOfBoundsException表明这个前提被违反了。</p>
+<h3 id="_6">错误通常不使用</h3>
+<p>错误往往<strong>被JVM保留</strong>用于表示资源不足、约束失败，或者其他程序无法继续执行的条件，因此最好<strong>不要再实现任何新的Error的子类</strong>。</p>
+<h2 id="_7">避免不必要地使用受检的异常</h2>
+<ul>
+<li>过分使用受检查异常会使API使用起来非常不方便（<strong>必须</strong>try-catch处理或者抛出这个异常）。<strong>未受捡异常通常更合适</strong>。</li>
+</ul>
+<h2 id="_8">优先使用标准的（非受检）异常</h2>
+<ul>
+<li>常用非检查异常:</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>异常</th>
+<th align="right">使用场合</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>IllegalArgumentException</td>
+<td align="right"><strong>非null的参数值不正确</strong></td>
+</tr>
+<tr>
+<td>IllegalStateException</td>
+<td align="right">对于方法调用而言，<strong>对象状态不合适</strong></td>
+</tr>
+<tr>
+<td>NullPointerException</td>
+<td align="right">在禁止使用null的情况下<strong>参数值为null</strong></td>
+</tr>
+<tr>
+<td>IndexOutOfBoundsException</td>
+<td align="right">下标参数值<strong>越界</strong></td>
+</tr>
+<tr>
+<td>ConcurrentModificationException</td>
+<td align="right">在禁止并发修改的情况下，检测到对象的<strong>并发修改</strong></td>
+</tr>
+<tr>
+<td>UnsupportedOperationException</td>
+<td align="right">对象<strong>不支持用户请求</strong>的方法</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_9">每个方法抛出的异常都要有文档</h2>
+<ul>
+<li>始终要单独地声明<strong>受检的异常</strong>，并且利用Javadoc的@throws标记，准确地<strong>记录下抛出每个异常的条件</strong>。永远<strong>不要声明一个方法“throws Exception”</strong>来应对一个方法中可能抛出的多个异常，这样异常发生时，会丢失异常子类的类型信息。</li>
+<li>利用Javadoc的@throws标签记录方法中可能抛出的每个<strong>未受捡异常</strong>，但是<strong>不要使用</strong>throws关键字将未受捡异常包含在方法的声明中。</li>
+<li>如果一个类中的许多方法出于<strong>同样的原因而抛出同一个异常</strong>，在该<strong>类的文档注释</strong>中对这个异常建立文档，而不要为每个方法单独建立文档。</li>
+</ul>
+<h2 id="_10">在细节消息中包含能捕获失败的信息</h2>
+<ul>
+<li>程序打印堆栈轨迹中包含该异常的<strong>字符串表示法</strong>，即它的<strong>toString方法</strong>的调用结果。它通常包含：</li>
+<li>异常的<strong>类名</strong>。</li>
+<li><strong>细节消息</strong>。</li>
+<li><strong>细节消息</strong>应该包含所有<strong>对该异常有贡献的</strong>参数和域的值。</li>
+<li><strong>细节消息</strong>与用户层次的错误消息不同，前者主要是用来分析失败原因的，<strong>信息内容</strong>比可理解性要重要得多。</li>
+</ul>
+<h2 id="_11">努力使失败保持原子性</h2>
+<ul>
+<li>一般而言，<strong>异常导致</strong>失败的方法应该在失败后使对象保持在<strong>被调用之前</strong>的状态。具有这种属性的方法称为具有<strong>失败原子性</strong>。</li>
+<li>使方法具有失败原子性的途径：</li>
+<li>设计一个<strong>不可变</strong>的对象（状态单一）。</li>
+<li>对于<strong>可变</strong>对象，在执行操作之前<strong>检查参数</strong>的有效性。</li>
+<li>编写<strong>恢复代码</strong>，拦截操作过程中发生的失败，并使对象回滚到操作开始时的状态。</li>
+<li>在对象的<strong>临时拷贝</strong>上操作，操作完成时候<strong>代替对象</strong>内容。</li>
+<li><strong>错误</strong>相对于异常而言通常不可恢复，<strong>不需要</strong>保持失败原子性。</li>
+</ul>
+<h2 id="_12">不要忽略异常</h2>
+<ul>
+<li><strong>空catch块</strong>会使异常达不到应有的目的，至少应该包含一条说明，解释<strong>为什么可以忽略</strong>这个异常。</li>
+</ul>
+<div class="hlcode"><pre><span class="c1">//Empty catch block ignores exception - Highly suspect!</span>
+<span class="k">try</span><span class="o">{</span>
+<span class="o">}</span><span class="k">catch</span><span class="o">(</span><span class="n">SomeException</span> <span class="n">e</span><span class="o">){</span>
+<span class="o">}</span>
+</pre></div>
+    </div>
+    <div id="footer">
+      <span>
+        <p>Copyright © 2016 Guosichuan.
+        Powered by <a href="http://simiki.org/" target="_blank">Simiki</a>.</p>
+        <p>Site Generated 2016-09-28 22:01:21</p>
+      </span>
+    </div>
+  </body>
+</html>
